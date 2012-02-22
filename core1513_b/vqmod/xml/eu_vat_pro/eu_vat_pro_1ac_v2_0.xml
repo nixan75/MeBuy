@@ -1,0 +1,1590 @@
+<modification>
+	<id>EU Vat Pro - Account</id>
+	<version>2.0.0</version>
+	<vqmver>2.1.5</vqmver>
+	<author>madimar</author>
+
+<!-- Registration Form -->	
+
+	<file name="catalog/model/account/customer.php">
+
+		<operation>
+            <search position="after"><![CDATA[
+      	$customer_id = $this->db->getLastId();
+			]]></search>
+            <add><![CDATA[
+		// madimar mod
+		// v2.0 added default_customer_group_id and vat_checked flag
+		$qry = "UPDATE " . DB_PREFIX . "customer SET" . " cust_tax_group_id = '" . $this->db->escape($data['cust_tax_group_id']) . "', customer_group_id = '" . $this->db->escape($data['default_customer_group_id']) . "', company = '" . $this->db->escape($data['company']) . "', address_1 = '" . $this->db->escape($data['address_1']) . "', address_2 = '" . $this->db->escape($data['address_2']) . "', city = '" . $this->db->escape($data['city']) . "', postcode = '" . $this->db->escape($data['postcode']) . "', country_id = '" . (int)$data['country_id'] . "', zone_id = '" . (int)$data['zone_id'] . "', taxid1 = '" . $this->db->escape($data['taxid1']) . "', taxid2 = '" . (isset($data['taxid2']) ? $this->db->escape($data['taxid2']) :'');
+		
+		if (isset($data['vat_checked'])) 
+			$qry .= "', vat_checked = '" . (int)$data['vat_checked'];
+		
+		$qry .= "' WHERE customer_id = '" . (int)$customer_id . "'";
+		
+		$this->db->query($qry);
+		// madimar mod end
+			]]></add>
+        </operation>
+		
+		<operation>
+            <search position="replace" offset="2" index="1"><![CDATA[
+		if (!$this->config->get('config_customer_approval')) {
+			]]></search>
+            <add><![CDATA[
+		if (!$this->config->get('config_customer_approval')) {
+			$this->db->query("UPDATE " . DB_PREFIX . "customer SET approved = '1' WHERE customer_id = '" . (int)$customer_id . "'");
+		}				
+		// madimar mod
+		$this->load->model('account/customer_tax_group');		
+		$cust_tax_group = $this->model_account_customer_tax_group->getCustomerTaxGroup((int)$this->request->post['cust_tax_group_id']);
+		if ($cust_tax_group['approval'] && $this->config->get('config_no_tax_approval')) {
+			$this->db->query("UPDATE " . DB_PREFIX . "customer SET approved = '0' WHERE customer_id = '" . (int)$customer_id . "'");
+		} 			
+		// madimar mod end
+			]]></add>
+        </operation>	
+
+		
+		<operation>
+            <search position="after"><![CDATA[
+		$this->db->query("UPDATE " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "' WHERE customer_id = '" . (int)$this->customer->getId() . "'");
+			]]></search>
+            <add><![CDATA[
+		// madimar mod
+		$this->db->query("UPDATE " . DB_PREFIX . "customer SET" . " cust_tax_group_id = '" . $this->db->escape($data['cust_tax_group_id']) . "', company = '" . $this->db->escape($data['company']) . "', address_1 = '" . $this->db->escape($data['address_1']) . "', address_2 = '" . $this->db->escape($data['address_2']) . "', city = '" . $this->db->escape($data['city']) . "', postcode = '" . $this->db->escape($data['postcode']) . "', country_id = '" . (int)$data['country_id'] . "', zone_id = '" . (int)$data['zone_id'] . "', taxid1 = '" . $this->db->escape($data['taxid1']) . "', taxid2 = '" . (isset($data['taxid2']) ? $this->db->escape($data['taxid2']) :'') . "' WHERE customer_id = '" . (int)$this->customer->getId() . "'");	
+
+      	$this->db->query("UPDATE " . DB_PREFIX . "address SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', company = '" . $this->db->escape($data['company']) . "', address_1 = '" . $this->db->escape($data['address_1']) . "', address_2 = '" . $this->db->escape($data['address_2']) . "', city = '" . $this->db->escape($data['city']) . "', postcode = '" . $this->db->escape($data['postcode']) . "', country_id = '" . (int)$data['country_id'] . "', zone_id = '" . (int)$data['zone_id'] . "' WHERE customer_id = '" . (int)$this->customer->getId() . "' AND address_id = '" . (int)$this->customer->getAddressId() . "'");				
+		// madimar mod end
+			]]></add>
+        </operation>
+	
+		<operation>
+            <search position="before"><![CDATA[
+	public function getTotalCustomersByEmail($email) {
+			]]></search>
+            <add><![CDATA[
+		// madimar mod
+	public function getPaymentAddress($customer_id) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "customer WHERE customer_id = '" . (int)$customer_id . "'");
+
+// madimar mod
+		if ($query->num_rows) {
+			$country_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE country_id = '" . (int)$query->row['country_id'] . "'");
+			
+			if ($country_query->num_rows) {
+				$country = $country_query->row['name'];
+				$iso_code_2 = $country_query->row['iso_code_2'];
+				$iso_code_3 = $country_query->row['iso_code_3'];
+				$address_format = $country_query->row['address_format'];
+			} else {
+				$country = '';
+				$iso_code_2 = '';
+				$iso_code_3 = '';	
+				$address_format = '';
+			}
+			
+			$zone_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE zone_id = '" . (int)$query->row['zone_id'] . "'");
+			
+			if ($zone_query->num_rows) {
+				$zone = $zone_query->row['name'];
+				$code = $zone_query->row['code'];
+			} else {
+				$zone = '';
+				$code = '';
+			}		
+			
+			$address_data = array(
+//				'firstname'      => $query->row['firstname'],
+//				'lastname'       => $query->row['lastname'],
+//				'company'        => $query->row['company'],
+//				'address_1'      => $query->row['address_1'],
+				'taxid1'      	 => $query->row['taxid1'],
+				'taxid2'      	 => $query->row['taxid2'],
+				'cust_tax_group_id' => $query->row['cust_tax_group_id'],								
+//				'address_2'      => $query->row['address_2'],
+//				'postcode'       => $query->row['postcode'],
+//				'city'           => $query->row['city'],
+//				'zone_id'        => $query->row['zone_id'],
+				'zone'           => $zone,
+				'zone_code'      => $code,
+//				'country_id'     => $query->row['country_id'],
+				'country'        => $country,	
+				'iso_code_2'     => $iso_code_2,
+				'iso_code_3'     => $iso_code_3,
+				'address_format' => $address_format
+			);
+			
+			return $address_data;
+		} else {
+			return FALSE;	
+		}
+            
+	}
+		// madimar mod end
+			]]></add>
+        </operation>
+
+
+		<operation>
+            <search position="replace"><![CDATA[
+		if (!$this->config->get('config_customer_approval')) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+			$this->load->model('account/customer_tax_group');
+			$cust_tax_group = $this->model_account_customer_tax_group->getCustomerTaxGroup((int)$this->request->post['cust_tax_group_id']);
+			if (!$this->config->get('config_customer_approval') &&  !($cust_tax_group['approval'] && $this->config->get('config_no_tax_approval'))) {
+// madimar mod end
+            ]]></add>
+        </operation>
+
+		
+	</file>	
+
+
+
+	<file name="catalog/controller/account/register.php">
+	
+		<operation>
+            <search position="before"><![CDATA[
+			$this->model_account_customer->addCustomer($this->request->post);
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+// v2.0 auto customer group
+		$this->load->model('account/customer_tax_group');
+		$cust_tax_group = $this->model_account_customer_tax_group->getCustomerTaxGroup((int)$this->request->post['cust_tax_group_id']);
+		$this->request->post['default_customer_group_id'] = $cust_tax_group['default_customer_group_id'];	
+// madimar mod end
+            ]]></add>
+        </operation>	
+	
+		<operation>
+            <search position="before"><![CDATA[
+    	$this->data['text_your_details'] = $this->language->get('text_your_details');
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+    	$this->data['text_your_tax_category'] = $this->language->get('text_your_tax_category');
+// madimar mod end
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="after"><![CDATA[
+    	$this->data['entry_zone'] = $this->language->get('entry_zone');
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+		$this->data['entry_taxid1'] = $this->language->get('entry_taxid1');
+		$this->data['entry_taxid2'] = $this->language->get('entry_taxid2');
+    	$this->data['entry_cust_tax_group'] = $this->language->get('entry_cust_tax_group');		
+    	$this->data['text_tax_category'] = $this->language->get('text_tax_category');			
+// madimar mod end
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="before"><![CDATA[
+		if (isset($this->error['zone'])) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+		if (isset($this->error['taxid1'])) {
+			$this->data['error_taxid1'] = $this->error['taxid1'];
+		} else {
+			$this->data['error_taxid1'] = '';
+		}
+		if (isset($this->error['taxid2'])) {
+			$this->data['error_taxid2'] = $this->error['taxid2'];
+		} else {
+			$this->data['error_taxid2'] = '';
+		}
+		if (isset($this->error['company'])) {
+			$this->data['error_company'] = $this->error['company'];
+		} else {
+			$this->data['error_company'] = '';
+		}
+		if (isset($this->error['nonatexempt'])) {
+			$this->data['error_nonatexempt'] = $this->error['nonatexempt'];
+		} else {
+			$this->data['error_nonatexempt'] = '';
+		}
+		if (isset($this->error['nonatforeign'])) {
+			$this->data['error_nonatforeign'] = $this->error['nonatforeign'];
+		} else {
+			$this->data['error_nonatforeign'] = '';
+		}
+		
+		if (isset($this->error['cust_tax_group'])) {
+			$this->data['error_cust_tax_group'] = $this->error['cust_tax_group'];
+		} else {
+			$this->data['error_cust_tax_group'] = '';
+		}	
+// v2.0 new error		
+		if (isset($this->error['taxid1_validation'])) {
+			$this->data['error_taxid1_validation'] = $this->error['taxid1_validation'];
+		} else {
+			$this->data['error_taxid1_validation'] = '';
+		}			
+		// madimar mod fine  		
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="before"><![CDATA[
+    	if (isset($this->request->post['zone_id'])) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod 
+		if (isset($this->request->post['taxid1'])) {
+// v2.0 		
+      		$this->data['taxid1'] = preg_replace('/[\.\s*]/m', '', $this->request->post['taxid1']);
+    	} else {
+      		$this->data['taxid1'] = '';
+    	}
+		if (isset($this->request->post['taxid2'])) {
+      		$this->data['taxid2'] = $this->request->post['taxid2'];
+    	} else {
+      		$this->data['taxid2'] = '';
+    	}
+		if (isset($this->request->post['cust_tax_group_id'])) {
+      		$this->data['cust_tax_group_id'] = $this->request->post['cust_tax_group_id'];		
+    	} else {
+			$this->data['cust_tax_group_id'] = $this->data['default_tax_group'];
+    	}		
+// madimar mod fine  
+		]]></add>
+        </operation>
+	
+		<operation>
+            <search position="before"><![CDATA[
+    	$this->data['heading_title'] = $this->language->get('heading_title');	
+            ]]></search>
+            <add><![CDATA[
+// madimar mod 
+		$this->load->model('account/customer_tax_group');
+		
+    	$this->data['cust_tax_groups'] = $this->model_account_customer_tax_group->getCustomerTaxGroups();
+    	$this->data['num_cust_tax_groups'] = $this->model_account_customer_tax_group->getTotalCustomerTaxGroups();
+// v2.0 bug fix offset = 0
+		$this->data['default_tax_group'] = 0;
+		if ($this->data['num_cust_tax_groups']) $this->data['default_tax_group'] = $this->data['cust_tax_groups'][0]['cust_tax_group_id'];
+// madimar mod fine  
+		]]></add>
+        </operation>
+
+		<operation>
+            <search position="before"><![CDATA[
+    	if (!$this->error) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod	
+// v2.0 VAT Web Check
+	$iso_code = $country_info['iso_code_2'];
+    $this->load->library('vatnumber');
+// compliancy checks		
+		switch ($this->request->post['cust_tax_group_id']) {
+			case "1" :
+			switch ($this->config->get('config_country_id')) {
+				// Italy
+				case "105" : 
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";
+					// Controllo CF
+					if (!$this->request->post['taxid2'] || !vatnumber::checkCF($this->request->post['taxid2'])) {
+						$this->error['taxid2'] = $this->language->get('error_taxid2');
+					}		
+				} else {
+				// se privato straniero, non necessario CF
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";
+					if (!isset($this->request->post['taxid2'])) 
+						$this->request->post['taxid2'] = "";
+				}
+				break;
+				
+				// Spain
+				case "195" : 
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";
+					// Check NIF
+					if (vatnumber::valida_nif_cif_nie($this->request->post['taxid2']) == -1 || vatnumber::valida_nif_cif_nie($this->request->post['taxid2']) == 0) {
+						$this->error['taxid2'] = $this->language->get('error_taxid2');
+					}
+					
+				} else {
+				// se privato straniero, non necessario CF
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";	
+					if (!isset($this->request->post['taxid2'])) 
+						$this->request->post['taxid2'] = "";					
+				}
+				break;		
+
+				// Default - France: 73 - Germany: 81 - UK: 222
+				default : 
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";
+					$this->request->post['taxid2'] = "";					
+				} else {
+				// se privato straniero, non necessario CF
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";
+					$this->request->post['taxid2'] = "";					
+				}
+				break;
+			}				
+			break;		
+		
+			case "2" :
+			switch ($this->config->get('config_country_id')) {
+				// Italy
+				case "105" : 			
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {			
+					if ((strlen(utf8_decode($this->request->post['company'])) < 3) || (strlen(utf8_decode($this->request->post['company'])) > 32)) {
+						$this->error['company'] = $this->language->get('error_company');
+					}
+					// Controllo VAT Number
+					if (1) {
+						$check = vatnumber::check($this->request->post['taxid1'],$iso_code);
+						
+						if ($check == false) {
+							$this->error['taxid1'] = $this->language->get('error_taxid1');
+						} elseif ($check == -1 && !$this->config->get('config_vat_web_check_unavail')) {
+							$this->error['taxid1_validation'] = $this->language->get('error_taxid1_validation');
+						} elseif ($check == -1 && $this->config->get('config_vat_web_check_unavail')) {
+							$this->request->post['vat_checked'] = 0;
+						} else {
+							$this->request->post['vat_checked'] = 1;
+						}
+					}
+					  
+					// Controllo CF opzionale solo se non vuoto es. Libero Professionista
+					if (!empty($this->request->post['taxid2'])) {
+						if (!vatnumber::checkCF($this->request->post['taxid2'])) {
+							$this->error['taxid2'] = $this->language->get('error_taxid2');
+						}
+					}	
+					
+				} else {
+					// se selezionato ma straniero
+					$this->error['nonatforeign'] = $this->language->get('error_nonatforeign');		
+				}
+				break;
+				
+				// Spain
+				case "195" : 
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {
+
+					if ((strlen(utf8_decode($this->request->post['company'])) < 3) || (strlen(utf8_decode($this->request->post['company'])) > 32)) {
+						$this->error['company'] = $this->language->get('error_company');
+					}
+					// Controllo VAT Number
+					if (1) {
+						$check = vatnumber::check($this->request->post['taxid1'],$iso_code);
+						
+						if ($check == false) {
+							$this->error['taxid1'] = $this->language->get('error_taxid1');
+						} elseif ($check == -1 && !$this->config->get('config_vat_web_check_unavail')) {
+							$this->error['taxid1_validation'] = $this->language->get('error_taxid1_validation');
+						} elseif ($check == -1 && $this->config->get('config_vat_web_check_unavail')) {
+							$this->request->post['vat_checked'] = 0;
+						} else {
+							$this->request->post['vat_checked'] = 1;
+						}
+					}
+					$this->request->post['taxid2'] = "";					
+				} else {
+				// se selezionato ma straniero
+				$this->error['nonatforeign'] = $this->language->get('error_nonatforeign');		
+				}
+				break;
+
+				// Default - France: 73 - Germany: 81 - UK: 222
+				default : 
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {
+				
+					if ((strlen(utf8_decode($this->request->post['company'])) < 3) || (strlen(utf8_decode($this->request->post['company'])) > 32)) {
+						$this->error['company'] = $this->language->get('error_company');
+					}
+					// Controllo VAT Number
+					if (1) {
+						$check = vatnumber::check($this->request->post['taxid1'],$iso_code);
+						
+						if ($check == false) {
+							$this->error['taxid1'] = $this->language->get('error_taxid1');
+						} elseif ($check == -1 && !$this->config->get('config_vat_web_check_unavail')) {
+							$this->error['taxid1_validation'] = $this->language->get('error_taxid1_validation');
+						} elseif ($check == -1 && $this->config->get('config_vat_web_check_unavail')) {
+							$this->request->post['vat_checked'] = 0;
+						} else {
+							$this->request->post['vat_checked'] = 1;
+						}
+					}
+					$this->request->post['taxid2'] = "";					
+				} else {
+				// se selezionato ma straniero
+				$this->error['nonatforeign'] = $this->language->get('error_nonatforeign');		
+				}
+				break;
+			}				
+			
+			break;			
+
+			case "3" :
+			if ($this->request->post['country_id'] != (int)$this->config->get('config_country_id')) {			
+					if ((strlen(utf8_decode($this->request->post['company'])) < 3) || (strlen(utf8_decode($this->request->post['company'])) > 32)) {
+						$this->error['company'] = $this->language->get('error_company');
+					}
+					// Controllo VAT Number
+					if (!empty($this->request->post['taxid1'])) {
+						$check = vatnumber::check($this->request->post['taxid1'],$iso_code);
+						
+						if ($check == false) {
+							$this->error['taxid1'] = $this->language->get('error_taxid1');
+						} elseif ($check == -1 && !$this->config->get('config_vat_web_check_unavail')) {
+							$this->error['taxid1_validation'] = $this->language->get('error_taxid1_validation');
+						} elseif ($check == -1 && $this->config->get('config_vat_web_check_unavail')) {
+							$this->request->post['vat_checked'] = 0;
+						} else {
+							$this->request->post['vat_checked'] = 1;
+						}
+					}
+					$this->request->post['taxid2'] = "";				
+			} else {
+				// se selezionato ma nazionale
+				$this->error['nonatexempt'] = $this->language->get('error_nonatexempt');		
+			}
+			break;	
+		}
+		// madimar mod fine
+            ]]></add>
+        </operation>
+	</file>
+
+	<file name="catalog/controller/account/success.php">
+
+		<operation>
+            <search position="replace"><![CDATA[
+		if (!$this->config->get('config_customer_approval')) {
+            ]]></search>
+            <add><![CDATA[
+//  madimar mod
+		if (!$this->config->get('config_customer_approval') && !$this->config->get('config_no_tax_approval')) {
+//  madimar mod end
+            ]]></add>
+        </operation>	
+
+		<operation>
+            <search position="after"><![CDATA[
+    		$this->data['text_message'] = sprintf($this->language->get('text_message'), $this->url->link('information/contact'));
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+		} elseif ($this->config->get('config_no_tax_approval')) {
+    		$this->data['text_message'] = sprintf($this->language->get('text_no_tax_approval_message'), $this->url->link('information/contact'));
+// madimar mod end
+            ]]></add>
+        </operation>	
+		
+	</file>	
+	
+	<file name="catalog/view/theme/*/template/account/register.tpl">
+
+		<operation>
+            <search position="after" index="1"><![CDATA[
+  <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="register">
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+	<?php if ($num_cust_tax_groups > 1) { ?>
+      <h2><?php echo $text_your_tax_category; ?></h2>
+      <div class="content" >
+		<p><?php echo $text_tax_category; ?></p>
+                <?php foreach ($cust_tax_groups as $cust_tax_group) { ?>
+				<label for="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="cursor: pointer; vertical-align: middle;" >
+                <?php if ($cust_tax_group['cust_tax_group_id'] == $cust_tax_group_id) { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" checked="checked"  style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				</br>
+				<div style="color: #999; display: block; font-size: 12px; " ><?php echo $cust_tax_group['description']; ?> </div></label>
+</br>
+                <?php } else { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				</br>
+				<div style="color: #999; display:block; font-size: 12px; " ><?php echo $cust_tax_group['description']; ?> </div></label>
+</br>				
+                <?php } ?>
+                <?php } ?>
+				<?php if ($error_nonatexempt) { ?>
+              <span class="error"><?php echo $error_nonatexempt; ?></span>
+              <?php } ?>
+				<?php if ($error_nonatforeign) { ?>
+              <span class="error"><?php echo $error_nonatforeign; ?></span>
+              <?php } ?>
+			  </div>	
+		<?php } ?>	
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>	
+		
+		<operation>
+            <search position="replace" index="2" offset="4"><![CDATA[
+      <table class="form">
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+<?php	switch ($this->config->get('config_country_id')) { 
+		// Italy	
+		case "105" :	
+		// Spain	
+		case "195" : ?>			
+      <table class="form">
+		  <?php if ($cust_tax_group_id <> 1) { ?>
+		  <tr id="cmpn" >
+		  <?php } else { ?>
+		  <tr id="cmpn" style="display: none;">
+		  <?php } ?>
+            <td width="150"><span class="required">* </span> <?php echo $entry_company; ?></td>
+            <td><input type="text" name="company" value="<?php echo $company; ?>" />
+              <?php if ($error_company) { ?>
+              <span class="error"><?php echo $error_company; ?></span>
+              <?php } ?></td>
+			</tr>   
+<!-- v1.3 mod -->
+		  <?php if ($cust_tax_group_id == 2) { ?> 	
+		  <tr id="taxid1" >
+		    <td><span id="taxid1R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 3) { ?> 	
+		  <tr id="taxid1" >
+		    <td><span id="taxid1R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <tr id="taxid1" style="display: none;">
+		    <td><span id="taxid1R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid1; ?></td>
+            <td><input type="text" name="taxid1" value="<?php echo $taxid1; ?>" /> 
+            <?php if ($error_taxid1) { ?>
+              <span class="error"><?php echo $error_taxid1; ?></span>
+            <?php } ?>
+<!-- v2.0 added error -->			
+            <?php if ($error_taxid1_validation) { ?>
+              <span class="error"><?php echo $error_taxid1_validation; ?></span>
+            <?php } ?>			
+            </td>
+          </tr>	
+<!-- CF -->		  
+		  <?php if ($cust_tax_group_id == 1) { ?> 	
+		  <tr id="taxid2" >
+		    <td><span id="taxid2R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 2) { ?> 	
+		  <tr id="taxid2" >
+		    <td><span id="taxid2R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <tr id="taxid2" style="display: none;">
+		    <td><span id="taxid2R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid2; ?></td>
+            <td><input type="text" name="taxid2" value="<?php echo $taxid2; ?>" /> 
+            <?php if ($error_taxid2) { ?>
+              <span class="error"><?php echo $error_taxid2; ?></span>
+            <?php } ?>
+            </td>
+          </tr>			  
+	<?php	break;	?>  
+		
+<?php		// Default - France: 73 - Germany: 81 - UK: 222 
+		default : 		?>
+      <table class="form">
+		  <?php if ($cust_tax_group_id <> 1) { ?>
+		  <tr id="cmpn" >
+		  <?php } else { ?>
+		  <tr id="cmpn" style="display: none;">
+		  <?php } ?>
+            <td width="150"><span class="required">* </span> <?php echo $entry_company; ?></td>
+            <td><input type="text" name="company" value="<?php echo $company; ?>" />
+              <?php if ($error_company) { ?>
+              <span class="error"><?php echo $error_company; ?></span>
+              <?php } ?></td>
+			</tr>   
+<!-- v1.3 mod -->
+		  <?php if ($cust_tax_group_id == 2) { ?> 	
+		  <tr id="taxid1" >
+		    <td><span id="taxid1R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 3) { ?> 	
+		  <tr id="taxid1" >
+		    <td><span id="taxid1R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <tr id="taxid1" style="display: none;">
+		    <td><span id="taxid1R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid1; ?></td>
+            <td><input type="text" name="taxid1" value="<?php echo $taxid1; ?>" /> 
+            <?php if ($error_taxid1) { ?>
+              <span class="error"><?php echo $error_taxid1; ?></span>
+            <?php } ?>
+<!-- v2.0 added error -->			
+            <?php if ($error_taxid1_validation) { ?>
+              <span class="error"><?php echo $error_taxid1_validation; ?></span>
+            <?php } ?>				
+            </td>
+          </tr>		  
+        <?php	break;  
+         } ?>		
+		
+		<!-- madimar mod end -->
+            ]]></add>
+        </operation>	
+
+		<operation>
+            <search position="after"><![CDATA[
+//--></script>
+            ]]></search>
+            <add><![CDATA[
+<script type="text/javascript"><!--
+function hide_show_us(ctgi)
+{
+switch (ctgi) {
+				case 1 :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="";				
+				break
+			   
+				case 2 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+				
+				case 3 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+
+				default :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";				
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break				
+				}
+}
+//--></script>
+            ]]></add>
+        </operation>	
+	</file>		
+
+<!-- Account edit -->	
+	
+	<file name="catalog/controller/account/edit.php">
+		
+		<operation>
+            <search position="before"><![CDATA[
+    	$this->data['heading_title'] = $this->language->get('heading_title');	
+            ]]></search>
+            <add><![CDATA[
+// madimar mod 
+		$this->load->model('account/customer_tax_group');
+		
+    	$this->data['cust_tax_groups'] = $this->model_account_customer_tax_group->getCustomerTaxGroups();
+    	$this->data['num_cust_tax_groups'] = $this->model_account_customer_tax_group->getTotalCustomerTaxGroups();
+// v2.0 bug fix offset = 0
+		$this->data['default_tax_group'] = 0;	
+		if ($this->data['num_cust_tax_groups']) $this->data['default_tax_group'] = $this->data['cust_tax_groups'][0]['cust_tax_group_id'];		
+// madimar mod fine  
+		]]></add>
+        </operation>	
+	
+		<operation>
+            <search position="before"><![CDATA[
+    	$this->data['text_your_details'] = $this->language->get('text_your_details');
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+    	$this->data['text_your_address'] = $this->language->get('text_your_address');
+    	$this->data['text_your_tax_category'] = $this->language->get('text_your_tax_category');
+		$this->data['text_select'] = $this->language->get('text_select');
+
+// madimar mod fine
+            ]]></add>
+        </operation>
+	
+		<operation>
+            <search position="after"><![CDATA[
+		$this->data['entry_fax'] = $this->language->get('entry_fax');
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+    	$this->data['entry_company'] = $this->language->get('entry_company');
+    	$this->data['entry_address_1'] = $this->language->get('entry_address_1');
+    	$this->data['entry_address_2'] = $this->language->get('entry_address_2');
+    	$this->data['entry_postcode'] = $this->language->get('entry_postcode');
+    	$this->data['entry_city'] = $this->language->get('entry_city');
+    	$this->data['entry_country'] = $this->language->get('entry_country');
+    	$this->data['entry_zone'] = $this->language->get('entry_zone');
+		$this->data['entry_taxid1'] = $this->language->get('entry_taxid1');
+		$this->data['entry_taxid2'] = $this->language->get('entry_taxid2');
+    	$this->data['entry_cust_tax_group'] = $this->language->get('entry_cust_tax_group');		
+    	$this->data['text_tax_category'] = $this->language->get('text_tax_category');			
+// madimar mod fine
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="before"><![CDATA[
+		if (isset($this->error['telephone'])) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+  		if (isset($this->error['address_1'])) {
+			$this->data['error_address_1'] = $this->error['address_1'];
+		} else {
+			$this->data['error_address_1'] = '';
+		}
+   		
+		if (isset($this->error['city'])) {
+			$this->data['error_city'] = $this->error['city'];
+		} else {
+			$this->data['error_city'] = '';
+		}
+		
+		if (isset($this->error['postcode'])) {
+			$this->data['error_postcode'] = $this->error['postcode'];
+		} else {
+			$this->data['error_postcode'] = '';
+		}
+
+		if (isset($this->error['country'])) {
+			$this->data['error_country'] = $this->error['country'];
+		} else {
+			$this->data['error_country'] = '';
+		}
+
+		if (isset($this->error['zone'])) {
+			$this->data['error_zone'] = $this->error['zone'];
+		} else {
+			$this->data['error_zone'] = '';
+		}
+		
+		if (isset($this->error['taxid1'])) {
+			$this->data['error_taxid1'] = $this->error['taxid1'];
+		} else {
+			$this->data['error_taxid1'] = '';
+		}
+		if (isset($this->error['taxid2'])) {
+			$this->data['error_taxid2'] = $this->error['taxid2'];
+		} else {
+			$this->data['error_taxid2'] = '';
+		}
+		
+		if (isset($this->error['nonatexempt'])) {
+			$this->data['error_nonatexempt'] = $this->error['nonatexempt'];
+		} else {
+			$this->data['error_nonatexempt'] = '';
+		}
+		if (isset($this->error['nonatforeign'])) {
+			$this->data['error_nonatforeign'] = $this->error['nonatforeign'];
+		} else {
+			$this->data['error_nonatforeign'] = '';
+		}		
+		
+		if (isset($this->error['company'])) {
+			$this->data['error_company'] = $this->error['company'];
+		} else {
+			$this->data['error_company'] = '';
+		}
+		if (isset($this->error['cust_tax_group'])) {
+			$this->data['error_cust_tax_group'] = $this->error['cust_tax_group'];
+		} else {
+			$this->data['error_cust_tax_group'] = '';
+		}		
+
+// v2.0 new error		
+		if (isset($this->error['taxid1_validation'])) {
+			$this->data['error_taxid1_validation'] = $this->error['taxid1_validation'];
+		} else {
+			$this->data['error_taxid1_validation'] = '';
+		}				
+
+		
+		$this->load->model('localisation/country');
+		
+    	$this->data['countries'] = $this->model_localisation_country->getCountries();			
+		// madimar mod fine  		
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="before"><![CDATA[
+		$this->data['back'] = $this->url->link('account/account', '', 'SSL');
+            ]]></search>
+            <add><![CDATA[
+// madimar mod 
+		if (isset($this->request->post['address_1'])) {
+      		$this->data['address_1'] = $this->request->post['address_1'];
+		} elseif (isset($customer_info)) {
+			$this->data['address_1'] = $customer_info['address_1'];
+		} else {
+      		$this->data['address_1'] = '';
+    	}
+	
+    	if (isset($this->request->post['address_2'])) {
+      		$this->data['address_2'] = $this->request->post['address_2'];
+		} elseif (isset($customer_info)) {
+			$this->data['address_2'] = $customer_info['address_2'];
+		} else {
+      		$this->data['address_2'] = '';
+    	}
+		
+    	if (isset($this->request->post['company'])) {
+      		$this->data['company'] = $this->request->post['company'];
+		} elseif (isset($customer_info)) {
+			$this->data['company'] = $customer_info['company'];
+		} else {
+      		$this->data['company'] = '';
+    	}
+
+				if (isset($this->request->post['postcode'])) {
+      		$this->data['postcode'] = $this->request->post['postcode'];
+		} elseif (isset($customer_info)) {
+			$this->data['postcode'] = $customer_info['postcode'];
+		} else {
+      		$this->data['postcode'] = '';
+    	}
+	
+    	if (isset($this->request->post['city'])) {
+      		$this->data['city'] = $this->request->post['city'];
+		} elseif (isset($customer_info)) {
+			$this->data['city'] = $customer_info['city'];
+		} else {
+      		$this->data['city'] = '';
+    	}
+		
+    	if (isset($this->request->post['country_id'])) {
+      		$this->data['country_id'] = $this->request->post['country_id'];
+    	}  elseif (isset($customer_info)) {
+      		$this->data['country_id'] = $customer_info['country_id'];			
+    	} else {
+      		$this->data['country_id'] = $this->config->get('config_country_id');
+    	}
+
+    	if (isset($this->request->post['zone_id'])) {
+      		$this->data['zone_id'] = $this->request->post['zone_id'];
+    	}  elseif (isset($customer_info)) {
+      		$this->data['zone_id'] = $customer_info['zone_id'];			
+    	} else {
+      		$this->data['zone_id'] = 'FALSE';
+    	}
+	
+
+		if (isset($this->request->post['taxid1'])) {
+// v2.0		
+      		$this->data['taxid1'] = preg_replace('/[\.\s*]/m', '', $this->request->post['taxid1']);
+		} elseif (isset($customer_info)) {
+			$this->data['taxid1'] = $customer_info['taxid1'];
+		} else {
+      		$this->data['taxid1'] = '';
+    	}
+
+		if (isset($this->request->post['taxid2'])) {
+      		$this->data['taxid2'] = $this->request->post['taxid2'];
+		} elseif (isset($customer_info)) {
+			$this->data['taxid2'] = $customer_info['taxid2'];
+		} else {
+      		$this->data['taxid2'] = '';
+    	}		
+		
+		if (isset($this->request->post['cust_tax_group_id'])) {
+      		$this->data['cust_tax_group_id'] = $this->request->post['cust_tax_group_id'];
+		} elseif (isset($customer_info)) {
+			$this->data['cust_tax_group_id'] = $customer_info['cust_tax_group_id'];
+		} else {
+// 1.8 default tax group			
+			$this->data['cust_tax_group_id'] = $this->data['default_tax_group'];
+// 1.8 end	
+    	}
+// madimar mod fine  
+		]]></add>
+        </operation>
+
+		<operation>
+            <search position="before"><![CDATA[
+    	if (!$this->error) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod	
+
+    	if ((strlen(utf8_decode($this->request->post['address_1'])) < 3) || (strlen(utf8_decode($this->request->post['address_1'])) > 128)) {
+      		$this->error['address_1'] = $this->language->get('error_address_1');
+    	}
+
+    	if ((strlen(utf8_decode($this->request->post['city'])) < 2) || (strlen(utf8_decode($this->request->post['city'])) > 128)) {
+      		$this->error['city'] = $this->language->get('error_city');
+    	}
+		
+		$this->load->model('localisation/country');
+		
+		$country_info = $this->model_localisation_country->getCountry($this->request->post['country_id']);
+		
+		if ($country_info && $country_info['postcode_required']) {
+			if ((strlen(utf8_decode($this->request->post['postcode'])) < 2) || (strlen(utf8_decode($this->request->post['postcode'])) > 10)) {
+				$this->error['postcode'] = $this->language->get('error_postcode');
+			}
+		}
+			
+    	if ($this->request->post['country_id'] == 'FALSE') {
+      		$this->error['country'] = $this->language->get('error_country');
+    	}
+		
+    	if ($this->request->post['zone_id'] == 'FALSE') {
+      		$this->error['zone'] = $this->language->get('error_zone');
+    	}
+
+// v2.0 VAT Web Check
+	$iso_code = $country_info['iso_code_2'];
+    $this->load->library('vatnumber');
+// compliancy checks		
+		switch ($this->request->post['cust_tax_group_id']) {
+			case "1" :
+			switch ($this->config->get('config_country_id')) {
+				// Italy
+				case "105" : 
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";
+					// Controllo CF
+					if (!$this->request->post['taxid2'] || !vatnumber::checkCF($this->request->post['taxid2'])) {
+						$this->error['taxid2'] = $this->language->get('error_taxid2');
+					}		
+				} else {
+				// se privato straniero, non necessario CF
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";
+					if (!isset($this->request->post['taxid2'])) 
+						$this->request->post['taxid2'] = "";
+				}
+				break;
+				
+				// Spain
+				case "195" : 
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";
+					// Check NIF
+					if (vatnumber::valida_nif_cif_nie($this->request->post['taxid2']) == -1 || vatnumber::valida_nif_cif_nie($this->request->post['taxid2']) == 0) {
+						$this->error['taxid2'] = $this->language->get('error_taxid2');
+					}
+					
+				} else {
+				// se privato straniero, non necessario CF
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";	
+					if (!isset($this->request->post['taxid2'])) 
+						$this->request->post['taxid2'] = "";					
+				}
+				break;		
+
+				// Default - France: 73 - Germany: 81 - UK: 222
+				default : 
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";
+					$this->request->post['taxid2'] = "";					
+				} else {
+				// se privato straniero, non necessario CF
+					$this->request->post['company'] = "";
+					$this->request->post['taxid1'] = "";
+					$this->request->post['taxid2'] = "";					
+				}
+				break;
+			}				
+			break;		
+		
+			case "2" :
+			switch ($this->config->get('config_country_id')) {
+				// Italy
+				case "105" : 			
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {			
+					if ((strlen(utf8_decode($this->request->post['company'])) < 3) || (strlen(utf8_decode($this->request->post['company'])) > 32)) {
+						$this->error['company'] = $this->language->get('error_company');
+					}
+				  // Controllo VAT Number
+				  if (1)
+				  {
+					$check = vatnumber::check($this->request->post['taxid1'],$iso_code);
+					
+						if ($check == false) {
+							$this->error['taxid1'] = $this->language->get('error_taxid1');
+						} elseif ($check == -1 && !$this->config->get('config_vat_web_check_unavail')) {
+							$this->error['taxid1_validation'] = $this->language->get('error_taxid1_validation');
+						} elseif ($check == -1 && $this->config->get('config_vat_web_check_unavail')) {
+							$this->request->post['vat_checked'] = 0;
+						} else {
+							$this->request->post['vat_checked'] = 1;
+						}
+				  }
+				  
+				// Controllo CF opzionale solo se non vuoto es. Libero Professionista
+				if (!empty($this->request->post['taxid2'])) 
+					if (!vatnumber::checkCF($this->request->post['taxid2']))
+					  $this->error['taxid2'] = $this->language->get('error_taxid2');
+		
+					} else {
+					// se selezionato ma straniero
+					$this->error['nonatforeign'] = $this->language->get('error_nonatforeign');		
+				}
+				break;
+				
+				// Spain
+				case "195" : 
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {
+
+					if ((strlen(utf8_decode($this->request->post['company'])) < 3) || (strlen(utf8_decode($this->request->post['company'])) > 32)) {
+						$this->error['company'] = $this->language->get('error_company');
+					}
+				  // Controllo VAT Number
+				  if (1)
+				  {
+					$check = vatnumber::check($this->request->post['taxid1'],$iso_code);
+					
+						if ($check == false) {
+							$this->error['taxid1'] = $this->language->get('error_taxid1');
+						} elseif ($check == -1 && !$this->config->get('config_vat_web_check_unavail')) {
+							$this->error['taxid1_validation'] = $this->language->get('error_taxid1_validation');
+						} elseif ($check == -1 && $this->config->get('config_vat_web_check_unavail')) {
+							$this->request->post['vat_checked'] = 0;
+						} else {
+							$this->request->post['vat_checked'] = 1;
+						}
+				  }
+					$this->request->post['taxid2'] = "";					
+				} else {
+				// se selezionato ma straniero
+				$this->error['nonatforeign'] = $this->language->get('error_nonatforeign');		
+				}
+				break;
+
+				// Default - France: 73 - Germany: 81 - UK: 222
+				default : 
+				if ($this->request->post['country_id'] == (int)$this->config->get('config_country_id')) {
+				
+					if ((strlen(utf8_decode($this->request->post['company'])) < 3) || (strlen(utf8_decode($this->request->post['company'])) > 32)) {
+						$this->error['company'] = $this->language->get('error_company');
+					}
+				  // Controllo VAT Number
+				  if (1)
+				  {
+					$check = vatnumber::check($this->request->post['taxid1'],$iso_code);
+					
+						if ($check == false) {
+							$this->error['taxid1'] = $this->language->get('error_taxid1');
+						} elseif ($check == -1 && !$this->config->get('config_vat_web_check_unavail')) {
+							$this->error['taxid1_validation'] = $this->language->get('error_taxid1_validation');
+						} elseif ($check == -1 && $this->config->get('config_vat_web_check_unavail')) {
+							$this->request->post['vat_checked'] = 0;
+						} else {
+							$this->request->post['vat_checked'] = 1;
+						}
+				  }
+					$this->request->post['taxid2'] = "";					
+				} else {
+				// se selezionato ma straniero
+				$this->error['nonatforeign'] = $this->language->get('error_nonatforeign');		
+				}
+				break;
+			}				
+			
+			break;			
+
+			case "3" :
+			if ($this->request->post['country_id'] != (int)$this->config->get('config_country_id')) {			
+					if ((strlen(utf8_decode($this->request->post['company'])) < 3) || (strlen(utf8_decode($this->request->post['company'])) > 32)) {
+						$this->error['company'] = $this->language->get('error_company');
+					}
+				  // Controllo VAT Number
+					if (!empty($this->request->post['taxid1']))
+				  {
+					$check = vatnumber::check($this->request->post['taxid1'],$iso_code);
+					
+						if ($check == false) {
+							$this->error['taxid1'] = $this->language->get('error_taxid1');
+						} elseif ($check == -1 && !$this->config->get('config_vat_web_check_unavail')) {
+							$this->error['taxid1_validation'] = $this->language->get('error_taxid1_validation');
+						} elseif ($check == -1 && $this->config->get('config_vat_web_check_unavail')) {
+							$this->request->post['vat_checked'] = 0;
+						} else {
+							$this->request->post['vat_checked'] = 1;
+						}
+				  }
+					$this->request->post['taxid2'] = "";				
+			} else {
+				// se selezionato ma nazionale
+				$this->error['nonatexempt'] = $this->language->get('error_nonatexempt');		
+			}
+			break;	
+		}
+		// madimar mod end
+            ]]></add>
+        </operation>
+	</file>
+
+	<file name="catalog/view/theme/*/template/account/edit.tpl">
+		<operation>
+            <search position="before" index="1"><![CDATA[
+    <h2><?php echo $text_your_details; ?></h2>
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+	<?php if ($num_cust_tax_groups > 1) { ?>
+      <h2><?php echo $text_your_tax_category; ?></h2>
+		<div class="content">
+		<p><?php echo $text_tax_category; ?></p>
+                <?php foreach ($cust_tax_groups as $cust_tax_group) { ?>
+				<label for="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="cursor: pointer; vertical-align: middle;" >
+                <?php if ($cust_tax_group['cust_tax_group_id'] == $cust_tax_group_id) { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" checked="checked"  style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				</br>
+				<span class="help"><?php echo $cust_tax_group['description']; ?> </span></label>
+</br>
+                <?php } else { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				</br>
+				<span class="help"><?php echo $cust_tax_group['description']; ?> </span></label>
+</br>				
+                <?php } ?>
+                <?php } ?>
+				<?php if ($error_nonatexempt) { ?>
+              <span class="error"><?php echo $error_nonatexempt; ?></span>
+              <?php } ?>
+				<?php if ($error_nonatforeign) { ?>
+              <span class="error"><?php echo $error_nonatforeign; ?></span>
+              <?php } ?>				
+				</div>	
+        <?php } ?>				
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>	
+		
+		<operation>
+            <search position="before" ><![CDATA[
+      <div class="buttons">
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+      <h2><?php echo $text_your_address; ?></h2>
+		<div class="content">
+			<table class="form">
+		  <?php if ($cust_tax_group_id <> 1) { ?>
+		  <tr id="cmpn" >
+		  <?php } else { ?>
+		  <tr id="cmpn" style="display: none;">
+		  <?php } ?>
+            <td width="150"><span class="required">* </span> <?php echo $entry_company; ?></td>
+            <td><input type="text" name="company" value="<?php echo $company; ?>" />
+              <?php if ($error_company) { ?>
+              <span class="error"><?php echo $error_company; ?></span>
+              <?php } ?></td>
+			</tr>   
+<!-- v1.3 mod -->
+		  <?php if ($cust_tax_group_id == 2) { ?> 	
+		  <tr id="taxid1" >
+		    <td><span id="taxid1R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 3) { ?> 	
+		  <tr id="taxid1" >
+		    <td><span id="taxid1R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <tr id="taxid1" style="display: none;">
+		    <td><span id="taxid1R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid1; ?></td>
+            <td><input type="text" name="taxid1" value="<?php echo $taxid1; ?>" /> 
+            <?php if ($error_taxid1) { ?>
+              <span class="error"><?php echo $error_taxid1; ?></span>
+            <?php } ?>
+<!-- v2.0 added error -->			
+            <?php if ($error_taxid1_validation) { ?>
+              <span class="error"><?php echo $error_taxid1_validation; ?></span>
+            <?php } ?>				
+            </td>
+          </tr>	
+<!-- CF -->		
+<?php	switch ($this->config->get('config_country_id')) { 
+		// Italy	
+		case "105" :	
+		// Spain	
+		case "195" : ?>	  
+		  <?php if ($cust_tax_group_id == 1) { ?> 	
+		  <tr id="taxid2" >
+		    <td><span id="taxid2R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 2) { ?> 	
+		  <tr id="taxid2" >
+		    <td><span id="taxid2R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <tr id="taxid2" style="display: none;">
+		    <td><span id="taxid2R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid2; ?></td>
+            <td><input type="text" name="taxid2" value="<?php echo $taxid2; ?>" /> 
+            <?php if ($error_taxid2) { ?>
+              <span class="error"><?php echo $error_taxid2; ?></span>
+            <?php } ?>
+            </td>
+          </tr>	
+	<?php	break;	
+		// Default - France: 73 - Germany: 81 - UK: 222 
+		default :	
+		break;
+		}	?> 	
+          <tr>
+            <td><span class="required">*</span> <?php echo $entry_address_1; ?></td>
+            <td><input type="text" name="address_1" value="<?php echo $address_1; ?>" />
+              <?php if ($error_address_1) { ?>
+              <span class="error"><?php echo $error_address_1; ?></span>
+              <?php } ?></td>
+          </tr>
+          <tr>
+            <td><?php echo $entry_address_2; ?></td>
+            <td><input type="text" name="address_2" value="<?php echo $address_2; ?>" /></td>
+          </tr>
+          <tr>
+            <td><span class="required">*</span> <?php echo $entry_city; ?></td>
+            <td><input type="text" name="city" value="<?php echo $city; ?>" />
+              <?php if ($error_city) { ?>
+              <span class="error"><?php echo $error_city; ?></span>
+              <?php } ?></td>
+          </tr>
+          <tr>
+          <td><span class="required">*</span> <?php echo $entry_postcode; ?></td>
+          <td><input type="text" name="postcode" value="<?php echo $postcode; ?>" />
+            <?php if ($error_postcode) { ?>
+            <span class="error"><?php echo $error_postcode; ?></span>
+            <?php } ?></td>
+          </tr>
+          <tr>
+            <td><span class="required">*</span> <?php echo $entry_country; ?></td>
+            <td><select name="country_id" id="country_id" onchange="$('select[name=\'zone_id\']').load('index.php?route=account/address/zone&country_id=' + this.value + '&zone_id=<?php echo $zone_id; ?>');">
+                <option value="FALSE"><?php echo $text_select; ?></option>
+                <?php foreach ($countries as $country) { ?>
+                <?php if ($country['country_id'] == $country_id) { ?>
+                <option value="<?php echo $country['country_id']; ?>" selected="selected"><?php echo $country['name']; ?></option>
+                <?php } else { ?>
+                <option value="<?php echo $country['country_id']; ?>"><?php echo $country['name']; ?></option>
+                <?php } ?>
+                <?php } ?>
+              </select>
+              <?php if ($error_country) { ?>
+              <span class="error"><?php echo $error_country; ?></span>
+              <?php } ?></td>
+          </tr>
+          <tr>
+            <td><span class="required">*</span> <?php echo $entry_zone; ?></td>
+            <td><select name="zone_id">
+              </select>
+              <?php if ($error_zone) { ?>
+              <span class="error"><?php echo $error_zone; ?></span>
+              <?php } ?></td>
+          </tr>		  
+	    </table>
+	</div>
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>	
+
+		<operation>
+            <search position="before"><![CDATA[
+<?php echo $footer; ?> 
+            ]]></search>
+            <add><![CDATA[
+<script type="text/javascript"><!--
+$('select[name=\'zone_id\']').load('index.php?route=account/address/zone&country_id=<?php echo $country_id; ?>&zone_id=<?php echo $zone_id; ?>');
+//--></script>
+			
+<script type="text/javascript"><!--
+function hide_show_us(ctgi)
+{
+switch (ctgi) {
+				case 1 :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="";				
+				break
+			   
+				case 2 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+				
+				case 3 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+
+				default :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";				
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break				
+				}
+}
+//--></script>
+            ]]></add>
+        </operation>	
+	</file>	
+
+	<file name="catalog/controller/account/address.php">
+		<operation>
+            <search position="replace"><![CDATA[
+		$results = $this->model_account_address->getAddresses();
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+		$results = $this->model_account_address->getAddressesF();
+// madimar mod fine
+            ]]></add>
+        </operation>	
+	</file>
+
+	<file name="catalog/model/account/address.php">
+		<operation>
+            <search position="before"><![CDATA[
+	public function getTotalAddresses() {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+	public function getAddressesF() {
+		$address_data = array();
+
+// madimar mod		
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "customer WHERE customer_id = '" . (int)$this->customer->getId() . "'");	
+
+		$default_address = $query->row['address_id'];
+// madimar mod
+		
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "address WHERE customer_id = '" . (int)$this->customer->getId() . "' && address_id != '" . (int)$default_address . "'");
+	
+		foreach ($query->rows as $result) {
+			$country_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE country_id = '" . (int)$result['country_id'] . "'");
+			
+			if ($country_query->num_rows) {
+				$country = $country_query->row['name'];
+				$iso_code_2 = $country_query->row['iso_code_2'];
+				$iso_code_3 = $country_query->row['iso_code_3'];
+				$address_format = $country_query->row['address_format'];
+			} else {
+				$country = '';
+				$iso_code_2 = '';
+				$iso_code_3 = '';	
+				$address_format = '';
+			}
+			
+			$zone_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE zone_id = '" . (int)$result['zone_id'] . "'");
+			
+			if ($zone_query->num_rows) {
+				$zone = $zone_query->row['name'];
+				$code = $zone_query->row['code'];
+			} else {
+				$zone = '';
+				$code = '';
+			}		
+		
+			$address_data[] = array(
+				'address_id'     => $result['address_id'],
+				'firstname'      => $result['firstname'],
+				'lastname'       => $result['lastname'],
+				'company'        => $result['company'],
+				'address_1'      => $result['address_1'],
+				'address_2'      => $result['address_2'],
+				'postcode'       => $result['postcode'],
+				'city'           => $result['city'],
+				'zone_id'        => $result['zone_id'],
+				'zone'           => $zone,
+				'zone_code'      => $code,
+				'country_id'     => $result['country_id'],
+				'country'        => $country,	
+				'iso_code_2'     => $iso_code_2,
+				'iso_code_3'     => $iso_code_3,
+				'address_format' => $address_format
+			);
+		}		
+		
+		return $address_data;
+	}
+	
+	public function getPaymentAddress() {
+		$address_data = array();
+
+// madimar mod		
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "customer WHERE customer_id = '" . (int)$this->customer->getId() . "'");	
+
+		$default_address = $query->row['address_id'];
+		$taxid1 = $query->row['taxid1'];
+		$taxid2 = $query->row['taxid2'];		
+// madimar mod
+		
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "address WHERE customer_id = '" . (int)$this->customer->getId() . "' && address_id = '" . (int)$default_address . "'");
+	
+		foreach ($query->rows as $result) {
+			$country_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "country` WHERE country_id = '" . (int)$result['country_id'] . "'");
+			
+			if ($country_query->num_rows) {
+				$country = $country_query->row['name'];
+				$iso_code_2 = $country_query->row['iso_code_2'];
+				$iso_code_3 = $country_query->row['iso_code_3'];
+				$address_format = $country_query->row['address_format'];
+			} else {
+				$country = '';
+				$iso_code_2 = '';
+				$iso_code_3 = '';	
+				$address_format = '';
+			}
+			
+			$zone_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "zone` WHERE zone_id = '" . (int)$result['zone_id'] . "'");
+			
+			if ($zone_query->num_rows) {
+				$zone = $zone_query->row['name'];
+				$code = $zone_query->row['code'];
+			} else {
+				$zone = '';
+				$code = '';
+			}		
+		
+			$address_data[] = array(
+				'address_id'     => $result['address_id'],
+				'firstname'      => $result['firstname'],
+				'lastname'       => $result['lastname'],
+				'company'        => $result['company'],
+				'address_1'      => $result['address_1'],
+				'address_2'      => $result['address_2'],
+				'postcode'       => $result['postcode'],
+				'city'           => $result['city'],
+				'zone_id'        => $result['zone_id'],
+				'zone'           => $zone,
+				'zone_code'      => $code,
+				'country_id'     => $result['country_id'],
+				'country'        => $country,	
+				'iso_code_2'     => $iso_code_2,
+				'iso_code_3'     => $iso_code_3,
+				'address_format' => $address_format,
+				'taxid1'		=> $taxid1,
+				'taxid2'		=> $taxid2			
+			);
+		}		
+		
+		return $address_data;
+	}
+	
+// madimar mod fine
+            ]]></add>
+        </operation>	
+	</file>
+
+	<file name="catalog/view/theme/*/template/account/address_form.tpl">
+			<operation>
+            <search position="replace" offset="16"><![CDATA[
+            <span class="error"><?php echo $error_zone; ?></span>
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+              <span class="error"><?php echo $error_zone; ?></span>
+              <?php } ?></td>
+          </tr>
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>	
+</file>
+
+<!-- account order -->
+
+	<file name="catalog/controller/account/order.php">
+		<operation>
+            <search position="after"><![CDATA[
+			$this->data['text_comment'] = $this->language->get('text_comment');
+            ]]></search>
+            <add><![CDATA[
+			// madimar mod
+			$this->data['text_taxid1'] = $this->language->get('text_taxid1');
+			$this->data['text_taxid2'] = $this->language->get('text_taxid2');
+		// madimar mod end
+            ]]></add>
+        </operation>	
+	
+		<operation>
+            <search position="after" index="2"><![CDATA[
+				$format = '{firstname} {lastname}' . "\n" . '{company}' . "\n" . '{address_1}' . "\n" . '{address_2}' . "\n" . '{city} {postcode}' . "\n" . '{zone}' . "\n" . '{country}';
+            ]]></search>
+            <add><![CDATA[
+		// madimar mod
+		if( strlen($order_info['payment_taxid1']) ) 		
+			$format .= "\n" . $this->data['text_taxid1'] . '{taxid1}';
+		if( strlen($order_info['payment_taxid2']) ) 	
+			$format .= "\n" . $this->data['text_taxid2'] . '{taxid2}';
+		// madimar mod end
+            ]]></add>
+        </operation>	
+
+		<operation>
+            <search position="replace" index="4"><![CDATA[
+      			'{country}'
+            ]]></search>
+            <add><![CDATA[
+      			'{country}',
+// madimar mod
+      			'{taxid1}',
+      			'{taxid2}'
+				// madimar mod end 
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="replace" ><![CDATA[
+      			'country'   => $order_info['payment_country']
+            ]]></search>
+            <add><![CDATA[
+     			'country'   => $order_info['payment_country'],
+// madimar mod
+				'taxid1'   => $order_info['payment_taxid1'],
+				'taxid2'   => $order_info['payment_taxid2']
+				// madimar mod end
+            ]]></add>
+        </operation>	
+	
+	</file>	
+
+	<file name="catalog/model/account/order.php">
+		<operation>
+            <search position="after"><![CDATA[
+				'payment_method'          => $order_query->row['payment_method'],
+            ]]></search>
+            <add><![CDATA[
+			// madimar mod
+				'payment_taxid1'          => $order_query->row['payment_taxid1'],
+				'payment_taxid2'          => $order_query->row['payment_taxid2'],
+		// madimar mod end
+            ]]></add>
+        </operation>	
+	</file>	
+	
+</modification>

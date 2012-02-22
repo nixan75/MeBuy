@@ -1,0 +1,313 @@
+<modification>
+	<id>VAT IVA MOD</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.1</vqmver>
+	<author>ANNARTE DESIGN</author>
+	<file name="admin/controller/sale/customer.php">
+		<operation>
+			<search position="before">
+			<![CDATA[
+			if (isset($this->error['telephone'])) {
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			if (isset($this->error['nif'])) {
+			$this->data['error_nif'] = $this->error['nif'];
+			} else {
+			$this->data['error_nif'] = '';
+			}
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="before">
+			<![CDATA[
+			if (isset($this->request->post['telephone'])) {
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			if (isset($this->request->post['nif'])) {
+      		$this->data['nif'] = $this->request->post['nif'];
+			} elseif (isset($customer_info)) { 
+			$this->data['nif'] = $customer_info['nif'];
+			} else {
+      		$this->data['nif'] = '';
+			}
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/controller/sale/order.php">
+		<operation>
+			<search position="after" index="2">
+			<![CDATA[
+			$this->data['email'] = $order_info['email'];
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$this->data['nif'] = $order_info['nif'];
+            ]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="before" index="2">
+			<![CDATA[
+			$find = array(
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$this->data['CustomerNif'] = $order_info['nif'];
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="after">
+			<![CDATA[
+			'store_fax'        => $store_fax,
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			'nif'               => $this->config->get('config_nif'),
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/controller/setting/setting.php">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			$this->data['entry_email'] = $this->language->get('entry_email');
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$this->data['entry_nif'] = $this->language->get('entry_nif');
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="before">
+			<![CDATA[
+			if (isset($this->request->post['config_language'])) {
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			if (isset($this->request->post['config_nif'])) {
+			$this->data['config_nif'] = $this->request->post['config_nif'];
+			} else {
+			$this->data['config_nif'] = $this->config->get('config_nif');
+			}		
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/controller/setting/store.php">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			$this->data['entry_use_ssl'] = $this->language->get('entry_use_ssl');
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$this->data['entry_nif'] = $this->language->get('entry_nif');
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/model/sale/customer.php">
+		<operation>
+			<search position="replace">
+			<![CDATA[
+			$this->db->query("INSERT INTO " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', newsletter = '" . (int)$data['newsletter'] . "', customer_group_id = '" . (int)$data['customer_group_id'] . "', password = '" . $this->db->escape(md5($data['password'])) . "', status = '" . (int)$data['status'] . "', date_added = NOW()");
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$this->db->query("INSERT INTO " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', nif = '" . $this->db->escape($data['nif']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', newsletter = '" . (int)$data['newsletter'] . "', customer_group_id = '" . (int)$data['customer_group_id'] . "', password = '" . $this->db->escape(md5($data['password'])) . "', status = '" . (int)$data['status'] . "', date_added = NOW()");
+      	   	]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="replace">
+			<![CDATA[
+			$this->db->query("UPDATE " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', newsletter = '" . (int)$data['newsletter'] . "', customer_group_id = '" . (int)$data['customer_group_id'] . "', status = '" . (int)$data['status'] . "' WHERE customer_id = '" . (int)$customer_id . "'");
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$this->db->query("UPDATE " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', nif = '" . $this->db->escape($data['nif']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', newsletter = '" . (int)$data['newsletter'] . "', customer_group_id = '" . (int)$data['customer_group_id'] . "', status = '" . (int)$data['status'] . "' WHERE customer_id = '" . (int)$customer_id . "'");
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/model/sale/order.php">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			'fax'                     => $order_query->row['fax'],
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			'nif'                     => $order_query->row['nif'],
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/model/setting/store.php">
+		<operation>
+			<search position="replace">
+			<![CDATA[
+			$this->db->query("UPDATE " . DB_PREFIX . "store SET name = '" . $this->db->escape($data['config_name']) . "', `url` = '" . $this->db->escape($data['config_url']) . "', `ssl` = '" . $this->db->escape($data['config_ssl']) . "' WHERE store_id = '" . (int)$store_id . "'");
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$this->db->query("UPDATE " . DB_PREFIX . "store SET name = '" . $this->db->escape($data['config_name']) . "', `url` = '" . $this->db->escape($data['config_url']) . "',  nif = '" . $this->db->escape($data['nif']) . "', `ssl` = '" . $this->db->escape($data['config_ssl']) . "' WHERE store_id = '" . (int)$store_id . "'");
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/view/template/sale/customer_form.tpl">
+		<operation>
+			<search position="before" offset="1">
+			<![CDATA[
+			<td><span class="required">*</span> <?php echo $entry_telephone; ?></td>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<tr>
+				<td><span class="required">*</span> <?php echo $entry_nif; ?></td>
+				<td>
+					<input type="text" name="nif" value="<?php echo $nif; ?>" />
+					<?php if ($error_nif) { ?>
+					<span class="error"><?php echo $error_nif; ?></span>
+					<?php  } ?>
+				</td>
+            </tr>
+            ]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/view/template/sale/order_form.tpl">
+		<operation>
+			<search position="after" offset="1">
+			<![CDATA[
+			<td><input type="text" name="fax" value="<?php echo $fax; ?>" /></td>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<tr>
+				<td><?php echo $entry_nif; ?></td>
+				<td><?php echo $nif; ?></td>
+			</tr>
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/view/template/sale/order_info.tpl">
+		<operation>
+			<search position="before" offset="1">
+			<![CDATA[
+			<td><?php echo $text_total; ?></td>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<tr>
+				<td><?php echo $entry_nif; ?></td>
+				<td><?php echo $nif; ?></td>
+			</tr>
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/view/template/sale/order_invoice.tpl">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			<?php echo $order['store_address']; ?><br />
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<?php echo $order['nif']; ?><br />
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="replace">
+			<![CDATA[
+			<?php echo $order['telephone']; ?></td>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<?php echo $order['telephone']; ?><br />
+			<?php echo $CustomerNif ; ?></td>
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/view/template/setting/setting.tpl">
+		<operation>
+			<search position="after" offset="10">
+			<![CDATA[
+			<td><?php echo $entry_weight_class; ?></td>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<tr>
+				<td><?php echo $entry_nif; ?></td>
+				<td><input type="text" name="config_nif" value="<?php echo $config_nif; ?>" /></td>
+			</tr>
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="admin/view/template/setting/store_form.tpl">
+		<operation>
+			<search position="after" offset="10">
+			<![CDATA[
+			<td><?php echo $entry_currency; ?></td>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+          	<tr>
+            	<td><?php echo $entry_nif; ?></td>
+            	<td><input type="text" name="nif" value="<?php echo $entry_nif; ?>" /></td>
+          	</tr>
+			]]>
+			</add>
+		</operation>
+	</file>
+</modification>

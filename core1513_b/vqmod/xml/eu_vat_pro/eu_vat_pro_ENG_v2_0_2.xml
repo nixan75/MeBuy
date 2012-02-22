@@ -1,0 +1,346 @@
+<modification>
+	<id>EU VAT Pro - English Language Pack</id>
+	<version>2.0.2</version>
+	<vqmver>2.1.5</vqmver>
+	<author>madimar</author>
+
+	<file name="catalog/language/english/account/success.php">
+		<operation>
+            <search position="after"><![CDATA[
+$_['text_message']
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+$_['text_no_tax_approval_message']  = '<p>Congratulations! Your new account has been successfully created!</p> <p>Consumer and National Company accounts have immediate access to our website.</p> <p>Foreign Companies accounts will receive approval by email within 1 business day.</p><p>If you have ANY questions about the operation of this website, please email the store owner.</p> <p>A confirmation has been sent to the provided email address. If you have not received it within the hour, please <a href="%s">contact us</a>.</p>';
+// madimar mod end
+            ]]></add>
+        </operation>	
+	</file>	
+	
+	<file name="catalog/language/english/account/register.php">
+		<operation>
+            <search position="before"><![CDATA[
+$_['text_your_details'] 
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+$_['text_your_tax_category']    = 'Your Tax Category';
+$_['text_tax_category']    = 'Please select Tax Category for your purchases.';
+// madimar mod end
+            ]]></add>
+        </operation>	
+	
+		<operation>
+            <search position="after"><![CDATA[
+$_['entry_confirm']
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['entry_taxid1']        = 'VAT Number:';
+$_['entry_taxid2']        = 'Codice Fiscale:';
+ // madimar mod end
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="after"><![CDATA[
+$_['error_agree']
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['error_taxid1']        = 'Your VAT Number has been checked against EU VIES Web DB and it seems not correct. Please try again or contact our store.';
+$_['error_taxid1_validation']        = 'EU VIES Web DB seems not available. Please try again later or contact our store.';
+$_['error_taxid2']        = 'A valid Codice Fiscale is required for the Tax Category you selected. ';
+$_['error_nonatexempt']        = 'Selected Tax Category is reserved to foreign customers! Please select a valid one.';
+$_['error_nonatforeign']        = 'Selected Tax Category is reserved to national customers! Please select a valid one.';
+$_['error_company']        = 'Please insert a Company name with min 3 and max 32 characters!';
+$_['error_cust_tax_group']        = 'Your Tax Group is invalid';
+ // madimar mod end
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="replace" offset="1"><![CDATA[
+$_['text_your_details']    = 'Your Personal Details';
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['text_your_details']    = 'Your Contact Info';
+$_['text_your_address']    = 'Your Billing Data';
+ // madimar mod end
+            ]]></add>
+        </operation>		
+		
+	</file>
+
+	<file name="catalog/language/english/checkout/checkout.php">
+		<operation>
+            <search position="before"><![CDATA[
+$_['text_your_details'] 
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['text_your_tax_category']    = 'Your Tax Category';
+$_['text_tax_category']    = 'Please select your Tax Category for your purchases.';
+ // madimar mod end
+            ]]></add>
+        </operation>	
+	
+		<operation>
+            <search position="after"><![CDATA[
+$_['entry_confirm']
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['entry_taxid1']        = 'VAT Number:';
+$_['entry_taxid2']        = 'Codice Fiscale:';
+$_['text_taxid1']        = 'VAT Number:';
+$_['text_taxid2']        = 'Codice Fiscale:';
+ // madimar mod end
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="after"><![CDATA[
+$_['error_agree']
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['error_taxid1']        = 'Your VAT Number has been checked against EU VIES Web DB and it seems not correct. Please try again or contact our store.';
+$_['error_taxid1_validation']        = 'EU VIES Web DB seems not available. Please try again later or contact our store.';
+$_['error_taxid2']        = 'A valid Codice Fiscale is required for the Tax Category you selected. ';
+$_['error_nonatexempt']        = 'Selected Tax Category is reserved to foreign customers! Please select a valid one.';
+$_['error_nonatforeign']        = 'Selected Tax Category is reserved to national customers! Please select a valid one.';
+$_['error_company']        = 'Please insert a Company name with min 3 and max 32 characters!';
+$_['error_cust_tax_group']        = 'Your Tax Group is invalid';
+ // madimar mod end
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="replace" offset="1"><![CDATA[
+$_['text_your_details']              = 'Your Personal Details';
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['text_your_details']    = 'Your Contact Info';
+$_['text_your_address']    = 'Your Billing Data';
+ // madimar mod end
+            ]]></add>
+        </operation>	
+		
+	</file>
+	
+	
+	<file name="catalog/language/english/account/edit.php">
+		<operation>
+            <search position="before"><![CDATA[
+$_['text_your_details'] 
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['text_your_tax_category']    = 'Your Tax Category';
+$_['text_tax_category']    = 'Please select your Tax Category for your purchases.';
+$_['text_your_address']    = 'Your Address';
+ // madimar mod end
+            ]]></add>
+        </operation>	
+	
+		<operation>
+            <search position="after"><![CDATA[
+$_['entry_fax']
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['entry_company']        = 'Company:';
+$_['entry_address_1']      = 'Address 1:';
+$_['entry_address_2']      = 'Address 2:';
+$_['entry_postcode']       = 'Post Code:';
+$_['entry_city']           = 'City:';
+$_['entry_country']        = 'Country:';
+$_['entry_zone']           = 'Region / State:';
+$_['entry_taxid1']        = 'VAT Number:';
+$_['entry_taxid2']        = 'Codice Fiscale:';
+ // madimar mod end
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="after"><![CDATA[
+$_['error_telephone']
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['error_taxid1']        = 'Your VAT Number has been checked against EU VIES Web DB and it seems not correct. Please try again or contact our store.';
+$_['error_taxid1_validation']        = 'EU VIES Web DB seems not available. Please try again later or contact our store.';
+$_['error_taxid2']        = 'A valid Codice Fiscale is required for the Tax Category you selected. ';
+$_['error_nonatexempt']        = 'Selected Tax Category is reserved to foreign customers! Please select a valid one.';
+$_['error_nonatforeign']        = 'Selected Tax Category is reserved to national customers! Please select a valid one.';
+$_['error_company']        = 'Please insert a Company name with min 3 and max 32 characters!';
+$_['error_cust_tax_group']        = 'Your Tax Group is invalid';
+$_['error_address_1']      = 'Address 1 must be between 3 and 128 characters!';
+$_['error_city']           = 'City must be between 3 and 128 characters!';
+$_['error_postcode']       = 'Postcode must be between 2 and 10 characters for this country!';
+$_['error_country']        = 'Please select a country!';
+$_['error_zone']           = 'Please select a region / state!';
+ // madimar mod end
+            ]]></add>
+        </operation>
+	</file>
+
+	<file name="catalog/language/english/account/account.php">
+		<operation>
+            <search position="replace"><![CDATA[
+$_['text_edit']          = 'Edit your account information';
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['text_edit']          = 'Edit your account, tax category information and payment address';
+ // madimar mod end
+            ]]></add>
+        </operation>	
+
+		<operation>
+            <search position="replace"><![CDATA[
+$_['text_address']       = 'Modify your address book entries';
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+$_['text_address']       = 'Modify your alternative shipping addresses';
+// madimar mod end
+            ]]></add>
+        </operation>	
+		
+	</file>
+
+	<file name="catalog/language/english/account/address.php">
+		<operation>
+            <search position="replace"><![CDATA[
+$_['text_address_book'] = 'Address Book Entries';
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+$_['text_address_book']   = 'Your alternative shipping addresses';
+// madimar mod end
+            ]]></add>
+        </operation>
+	
+	</file>
+
+	<file name="catalog/language/english/account/order.php">
+		<operation>
+            <search position="after"><![CDATA[
+$_['text_error']
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['text_taxid1']        = 'VAT N: ';
+$_['text_taxid2']        = 'C.F.: ';
+ // madimar mod end
+            ]]></add>
+        </operation>
+
+	</file>		
+
+
+	<file name="admin/language/english/sale/customer.php">
+
+		<operation>
+            <search position="after"><![CDATA[
+$_['entry_zone']
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['entry_taxid1']        = 'VAT Number:';
+$_['entry_taxid2']        = 'Codice Fiscale:';
+$_['entry_cust_tax_group']        = 'Tax Category:';
+$_['tab_cust_tax_group']        = 'Payment Address and Billing Data';
+// v2.0 vat checked
+$_['entry_vat_checked']        = 'VAT Number Checked?';
+ // madimar mod end
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="after"><![CDATA[
+$_['error_zone']
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['error_taxid1']        = 'Your VAT Number has been checked against EU VIES Web DB and it seems not correct. Please try again or contact our store. ';
+$_['error_taxid2']        = 'A valid Codice Fiscale is required for the Tax Category you selected. ';
+$_['error_nonatexempt']        = 'Selected Tax Category is reserved to foreign customers! Please select a valid one.';
+$_['error_nonatforeign']        = 'Selected Tax Category is reserved to national customers! Please select a valid one.';
+$_['error_company']        = 'Please insert a Company name with min 3 and max 32 characters!';
+$_['error_cust_tax_group']        = 'Your Tax Group is invalid';
+ // madimar mod end
+            ]]></add>
+        </operation>
+		
+	</file>
+	
+	<file name="admin/language/english/sale/order.php">
+		<operation>
+            <search position="after"><![CDATA[
+$_['entry_payment']
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['entry_taxid1']        = 'VAT N.:';
+$_['text_taxid1']        = 'VAT N.:';
+$_['entry_taxid2']        = 'C.F.:';
+$_['text_taxid2']        = 'C.F.:';
+ // madimar mod end
+            ]]></add>
+        </operation>
+	</file>	
+
+	<file name="admin/language/english/setting/setting.php">		
+		<operation>
+            <search position="after"><![CDATA[
+$_['entry_customer_approval']
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+$_['entry_no_tax_approval'] = 'Approve New No Tax Customers:<br /><span class="help">Don\'t allow new no tax customers to login until their account has been approved.</span>';
+// v2.0 new setting item
+$_['entry_vat_web_check_unavail'] = 'Allow registration if VAT Web Check unavailable:<br /><span class="help">It can happen EU VIES service is temporarily unavailable. If set yes, registration is allowed even if EU VIES is unavailable in order not to risk to lose the customer. If no, a blocking error is presented in registration page.</span>';
+// madimar mod end
+            ]]></add>
+        </operation>				
+	</file>
+
+<!-- v2.0 store missing bug fix -->
+	<file name="admin/language/english/setting/store.php">		
+		<operation>
+            <search position="after"><![CDATA[
+$_['entry_customer_approval']
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+ $_['entry_no_tax_approval'] = 'Approva Clienti esenti IVA:<br /><span class="help">Non permettere a nuovi clienti con possibile esenzione di tassazione di accedere al sito prima che il loro account non venga approvato.</span>';
+ // v2.0 new setting item
+$_['entry_vat_web_check_unavail'] = 'Allow registration if VAT Web Check unavailable:<br /><span class="help">It can happen EU VIES service is temporarily unavailable. If set yes, registration is allowed even if EU VIES is unavailable in order not to risk to lose the customer. If no, a blocking error is presented in registration page.</span>';
+// madimar mod end
+            ]]></add>
+        </operation>				
+	</file>
+
+<!-- v2.0.2 order mail text_taxid bug fix -->
+	
+	<file name="catalog/language/english/mail/order.php">
+		<operation>
+            <search position="after"><![CDATA[
+// Text
+            ]]></search>
+            <add><![CDATA[
+ // madimar mod
+$_['text_taxid1']        = 'VAT N: ';
+$_['text_taxid2']        = 'C.F./NIF: ';
+ // madimar mod end
+            ]]></add>
+        </operation>
+
+	</file>		
+	
+</modification>

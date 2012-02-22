@@ -1,0 +1,99 @@
+<modification>
+	<id>VAT IVA MOD</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="catalog/view/theme/shoppica/template/account/edit.tpl">
+		<operation>
+			<search position="before"><![CDATA[
+			<div class="s_row_2<?php if ($error_email): ?> s_error_row<?php endif; ?> clearfix">
+			]]></search>
+			<add><![CDATA[
+			<div class="s_row_2 clearfix">
+              <label><?php echo $entry_nif; ?></label>
+              <input type="text" name="nif" value="<?php echo $nif; ?>" size="30" class="required" />
+			</div>	
+			]]></add>
+		</operation>	
+	</file>
+	
+	<file name="catalog/view/theme/shoppica/template/account/register.tpl">
+		<operation>
+			<search position="before"><![CDATA[
+			<div class="s_row_2<?php if ($error_telephone): ?> s_error_row<?php endif; ?> clearfix">
+			]]></search>
+			<add><![CDATA[
+			<div class="s_row_2 clearfix">
+              <label><?php echo $entry_nif; ?></label>
+              <input type="text" name="nif" value="<?php echo $nif; ?>" size="30" class="required" /><?php echo $entry_detalle_nif; ?>
+            </div>	
+			]]></add>
+		</operation>	
+	</file>
+	
+	<file name="catalog/view/theme/shoppica/template/checkout/register.tpl">
+		<operation>
+			<search position="after" offset="2">
+			<![CDATA[
+			<label><?php echo $entry_email; ?> *</label>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<div class="s_row_2 clearfix">
+				<label><?php echo $entry_nif; ?> *</label>
+				<input type="text" name="nif" value="" size="30" class="required" />
+			</div>	
+			]]>
+			</add>
+		</operation>	
+	</file>
+	
+	<file name="catalog/view/theme/shoppica/template/information/contact.tpl">
+		<operation>
+			<search position="before">
+			<![CDATA[
+			<?php if ($fax) { ?>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<?php if ($nif) { ?>
+			<p class="grid_<?php if($this->document->shoppica_products_listing == "size_1"): echo "3"; elseif ($this->document->shoppica_products_listing == "size_2"): echo "4"; endif; ?>">
+            <strong><?php echo $text_vat; ?></strong><br /> <?php echo $nif; ?>
+			</p>
+			<?php } ?>
+			]]>
+			</add>
+		</operation>	
+	</file>
+	
+	<file name="catalog/view/theme/default/template/mail/order.tpl">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			<b><?php echo $text_date_added; ?></b> <?php echo $date_added; ?><br />
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			VAT:<b><?php echo $nif_store ; ?></b><br />
+			]]>
+			</add>
+		</operation>
+<!-- MAIL ORDER -->
+		<operation>
+			<search position="before" index="1">
+			<![CDATA[
+			<?php if ($shipping_address) { ?>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<td class="left"><?php echo $text_payment_address; ?></td><?php echo 'VAT:'. $Nif ; ?></td>
+			]]>
+			</add>
+		</operation>
+	</file>
+</modification>

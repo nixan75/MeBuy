@@ -1,0 +1,78 @@
+.jcarousel {
+  position: relative;
+}
+.jcarousel * {
+	z-index: 1 !important;
+}
+.jcarousel li,
+.jcarousel li a
+{
+  display: block;
+  text-align: center;
+}
+.jcarousel li a {
+  clear: both;
+}
+.jcarousel li img {
+  position: relative;
+  height: auto;
+  margin: 0 auto;
+}
+.jcarousel_horizontal {
+  padding: 0 30px;
+}
+.jcarousel_vertical {
+  padding: 30px 0;
+}
+.jcarousel_vertical li,
+.jcarousel_vertical li a
+{
+  clear: both;
+  width: 100%;
+}
+.jcarousel_vertical li a {
+  padding: 10px 0;
+}
+.jcarousel-clip {
+  overflow: hidden;
+}
+.jcarousel-prev,
+.jcarousel-next
+{
+  position: absolute;
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-image: url(../images/carousel_controls.png);
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+.jcarousel-prev-disabled,
+.jcarousel-next-disabled
+{
+  background-color: #ccc !important;
+}
+.jcarousel_horizontal .jcarousel-prev {
+  left: -30px;
+  top: 50%;
+  margin-top: -12px;
+  background-position: 0 -24px;
+}
+.jcarousel_horizontal .jcarousel-next {
+  right: -30px;
+  top: 50%;
+  margin-top: -12px;
+  background-position: -24px -24px;
+}
+.jcarousel_vertical .jcarousel-prev {
+  top: -30px;
+  left: 50%;
+  margin-left: -12px;
+  background-position: 0 0;
+}
+.jcarousel_vertical .jcarousel-next {
+  bottom: -30px;
+  left: 50%;
+  margin-left: -12px;
+  background-position: -24px 0;
+}

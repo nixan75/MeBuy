@@ -1,0 +1,128 @@
+<modification>
+	<id>EU VAT pro - SL</id>
+	<version>2.0.0</version>
+	<vqmver>2.1.5</vqmver>
+	<author>madimar</author>
+
+<!-- System Library Customer and Tax -->
+
+	<file name="system/library/customer.php">
+		<operation>
+            <search position="after"><![CDATA[
+	private $customer_group_id;
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+	private $cust_tax_group_id;
+	private $taxid1;
+	private $taxid2;
+	// madimar mod end
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="after"><![CDATA[
+				$this->customer_group_id = $customer_query->row['customer_group_id'];
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+				$this->cust_tax_group_id = $customer_query->row['cust_tax_group_id'];
+				$this->taxid1 = $customer_query->row['taxid1'];				
+				$this->taxid2 = $customer_query->row['taxid2'];		
+				// madimar mod end
+            ]]></add>
+        </operation>		
+
+		<operation>
+            <search position="replace"><![CDATA[
+		if ($customer_query->num_rows) {
+            ]]></search>
+            <add><![CDATA[
+// v1.2 madimar mod
+		if ($customer_query->num_rows && (int)$customer_query->row['approved'] == 1) {
+// v1.2 madimar mod fine
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="after"><![CDATA[
+		$this->customer_group_id = '';	
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+		$this->cust_tax_group_id = '';	
+		$this->taxid1 = '';		
+		$this->taxid2 = '';	
+		// madimar mod end
+            ]]></add>
+        </operation>
+	
+		
+	<operation>
+            <search position="before"><![CDATA[
+  	public function getCustomerGroupId() {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+  	public function getCustTaxGroupId() {
+		return $this->cust_tax_group_id;	
+  	}
+  	public function getCustTaxID1() {
+		return $this->taxid1;	
+  	}	
+  	public function getCustTaxID2() {
+		return $this->taxid2;	
+  	}
+	// madimar mod end
+            ]]></add>
+        </operation>
+	</file>	
+
+	<file name="system/library/tax.php">
+		<operation>
+            <search position="after"><![CDATA[
+    public function getRates($value, $tax_class_id) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+      global $registry;
+      $this->customer = $registry->get('customer');
+	  if (isset($this->session->data['guest']['cust_tax_group_id'])) { 
+	  $guest_tax = $this->session->data['guest']['cust_tax_group_id'];
+	  } else {
+	  $guest_tax = 0;
+	  }
+	  if (isset($this->session->data['guest']['payment']['taxid1'])) { 
+	  $guest_taxid1 = $this->session->data['guest']['payment']['taxid1'];
+	  } else {
+	  $guest_taxid1 = 0;
+	  }	  
+// madimar mod fine
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="before" index="2"><![CDATA[
+		foreach ($tax_rates as $tax_rate) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+     if (!(($this->customer->getCustTaxGroupId() == 3 && $this->customer->getCustTaxID1()) || ($guest_tax == 3 && $guest_taxid1))) {
+// madimar mod end
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="before"><![CDATA[
+		return $tax_rate_data;
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+	  }	 
+// madimar mod end
+            ]]></add>
+        </operation>		
+		
+	</file>
+
+</modification>

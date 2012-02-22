@@ -1,0 +1,809 @@
+<modification>
+	<id>EU VAT pro - SL</id>
+	<version>2.0.0</version>
+	<vqmver>2.1.5</vqmver>
+	<author>madimar</author>
+
+	<file name="catalog/view/theme/shoppica/template/account/register.tpl">
+
+		<operation>
+            <search position="after" index="1"><![CDATA[
+  <form id="register_form" action="<?php echo $action; ?>" method="post" enctype="multipart/form-data">
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+	<?php if ($num_cust_tax_groups > 1) { ?>
+      <h2><?php echo $text_your_tax_category; ?></h2>
+      <div class="content" >
+		<p><?php echo $text_tax_category; ?></p>
+                <?php foreach ($cust_tax_groups as $cust_tax_group) { ?>
+				<label for="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="cursor: pointer; vertical-align: middle;" >
+                <?php if ($cust_tax_group['cust_tax_group_id'] == $cust_tax_group_id) { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" checked="checked"  style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				</br>
+				<div style="color: #999; display: block; font-size: 12px; " ><?php echo $cust_tax_group['description']; ?> </div></label>
+</br>
+                <?php } else { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				</br>
+				<div style="color: #999; display:block; font-size: 12px; " ><?php echo $cust_tax_group['description']; ?> </div></label>
+</br>				
+                <?php } ?>
+                <?php } ?>
+				<?php if ($error_nonatexempt) { ?>
+              <span class="error"><?php echo $error_nonatexempt; ?></span>
+              <?php } ?>
+				<?php if ($error_nonatforeign) { ?>
+              <span class="error"><?php echo $error_nonatforeign; ?></span>
+              <?php } ?>
+			  </div>	
+		<?php } ?>	
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="replace"><![CDATA[
+      <input type="text" name="company" value="<?php echo $company; ?>" size="30" />
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+<?php	switch ($this->config->get('config_country_id')) { 
+		// Italy	
+		case "105" :	
+		// Spain	
+		case "195" : ?>			
+      <label>
+		  <?php if ($cust_tax_group_id <> 1) { ?>
+		<tr id="cmpn" >
+			<?php } else { ?>
+			<tr id="cmpn" style="display: none;">
+			<?php } ?>
+            <label><span class="required">* </span><?php echo $entry_company; ?></label>
+            <input type="text" name="company" value="<?php echo $company; ?>" size="30" />
+            <?php if ($error_company) { ?>
+            <span class="error"><?php echo $error_company; ?></span>
+            <?php } ?>
+		</tr>   
+<!-- v1.3 mod -->
+		<?php if ($cust_tax_group_id == 2) { ?> 	
+		<tr id="taxid1" >
+		<label><span id="taxid1R" class="required">* </span>
+			<?php } elseif ($cust_tax_group_id == 3) { ?> 	
+			<tr id="taxid1" >
+		    <td><span id="taxid1R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+			<tr id="taxid1" style="display: none;">
+		    <td><span id="taxid1R" class="required">* </span>		  
+			<?php } ?>
+			<?php echo $entry_taxid1; ?>
+		</label>
+            <input type="text" name="taxid1" value="<?php echo $taxid1; ?>" size="30" /> 
+            <?php if ($error_taxid1) { ?>
+              <span class="error"><?php echo $error_taxid1; ?></span>
+            <?php } ?>
+<!-- v2.0 added error -->			
+            <?php if ($error_taxid1_validation) { ?>
+              <span class="error"><?php echo $error_taxid1_validation; ?></span>
+            <?php } ?>
+		</tr>	
+<!-- CF -->		  
+		<?php if ($cust_tax_group_id == 1) { ?> 	
+		<tr id="taxid2" >
+			<label><span id="taxid2R" class="required">* </span>
+				<?php } elseif ($cust_tax_group_id == 2) { ?> 	
+				<tr id="taxid2" >
+				<td><span id="taxid2R" style="display: none;" class="required">* </span>
+				<?php } else { ?>		  
+				<tr id="taxid2" style="display: none;">
+				<td><span id="taxid2R" class="required">* </span>		  
+				<?php } ?>
+				<?php echo $entry_taxid2; ?>
+			</label>
+            <input type="text" name="taxid2" value="<?php echo $taxid2; ?>" size="30" /> 
+            <?php if ($error_taxid2) { ?>
+              <span class="error"><?php echo $error_taxid2; ?></span>
+            <?php } ?>
+		</tr>			  
+		<?php	break;	?>  
+		
+		<?php		// Default - France: 73 - Germany: 81 - UK: 222 
+		default : 		?>
+		<label>
+		  <?php if ($cust_tax_group_id <> 1) { ?>
+		  <tr id="cmpn" >
+		  <?php } else { ?>
+		  <tr id="cmpn" style="display: none;">
+		  <?php } ?>
+            <td width="150"><span class="required">* </span> <?php echo $entry_company; ?></td>
+            <td><input type="text" name="company" value="<?php echo $company; ?>" />
+              <?php if ($error_company) { ?>
+              <span class="error"><?php echo $error_company; ?></span>
+              <?php } ?></td>
+			</tr>   
+<!-- v1.3 mod -->
+		  <?php if ($cust_tax_group_id == 2) { ?> 	
+		  <tr id="taxid1" >
+		    <td><span id="taxid1R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 3) { ?> 	
+		  <tr id="taxid1" >
+		    <td><span id="taxid1R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <tr id="taxid1" style="display: none;">
+		    <td><span id="taxid1R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid1; ?></td>
+            <td><input type="text" name="taxid1" value="<?php echo $taxid1; ?>" /> 
+            <?php if ($error_taxid1) { ?>
+              <span class="error"><?php echo $error_taxid1; ?></span>
+            <?php } ?>
+<!-- v2.0 added error -->			
+            <?php if ($error_taxid1_validation) { ?>
+              <span class="error"><?php echo $error_taxid1_validation; ?></span>
+            <?php } ?>				
+            </td>
+          </tr>		  
+        <?php	break;  
+         } ?>		
+		
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="after"><![CDATA[
+			</script>
+            ]]></search>
+            <add><![CDATA[
+<script type="text/javascript"><!--
+function hide_show_us(ctgi)
+{
+switch (ctgi) {
+				case 1 :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="";				
+				break
+			   
+				case 2 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+				
+				case 3 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+
+				default :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";				
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break				
+				}
+}
+//--></script>
+            ]]></add>
+        </operation>	
+	</file>
+	
+	<file name="catalog/view/theme/shoppica/template/account/edit.tpl">
+		<operation>
+            <search position="before" index="1"><![CDATA[
+			<h2 class="s_title_1"><?php echo $text_your_details; ?></h2>
+            ]]></search>
+            <add><![CDATA[
+			<!-- madimar mod -->
+	<?php if ($num_cust_tax_groups > 1) { ?>
+      <h2><?php echo $text_your_tax_category; ?></h2>
+		<div class="content">
+		<p><?php echo $text_tax_category; ?></p>
+                <?php foreach ($cust_tax_groups as $cust_tax_group) { ?>
+				<label for="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="cursor: pointer; vertical-align: middle;" >
+                <?php if ($cust_tax_group['cust_tax_group_id'] == $cust_tax_group_id) { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" checked="checked"  style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				</br>
+				<span class="help"><?php echo $cust_tax_group['description']; ?> </span></label>
+</br>
+                <?php } else { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				</br>
+				<span class="help"><?php echo $cust_tax_group['description']; ?> </span></label>
+</br>				
+                <?php } ?>
+                <?php } ?>
+				<?php if ($error_nonatexempt) { ?>
+              <span class="error"><?php echo $error_nonatexempt; ?></span>
+              <?php } ?>
+				<?php if ($error_nonatforeign) { ?>
+              <span class="error"><?php echo $error_nonatforeign; ?></span>
+              <?php } ?>				
+				</div>	
+        <?php } ?>				
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>	
+		
+		<operation>
+            <search position="before" ><![CDATA[
+			<div class="s_submit s_mb_25 clearfix">
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+      <h2><?php echo $text_your_address; ?></h2>
+		<div class="content">
+			<table class="form">
+		  <?php if ($cust_tax_group_id <> 1) { ?>
+		  <tr id="cmpn" >
+		  <?php } else { ?>
+		  <tr id="cmpn" style="display: none;">
+		  <?php } ?>
+            <td width="150"><span class="required">* </span> <?php echo $entry_company; ?></td>
+            <td><input type="text" name="company" value="<?php echo $company; ?>" />
+              <?php if ($error_company) { ?>
+              <span class="error"><?php echo $error_company; ?></span>
+              <?php } ?></td>
+			</tr>   
+<!-- v1.3 mod -->
+		  <?php if ($cust_tax_group_id == 2) { ?> 	
+		  <tr id="taxid1" >
+		    <td><span id="taxid1R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 3) { ?> 	
+		  <tr id="taxid1" >
+		    <td><span id="taxid1R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <tr id="taxid1" style="display: none;">
+		    <td><span id="taxid1R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid1; ?></td>
+            <td><input type="text" name="taxid1" value="<?php echo $taxid1; ?>" /> 
+            <?php if ($error_taxid1) { ?>
+              <span class="error"><?php echo $error_taxid1; ?></span>
+            <?php } ?>
+<!-- v2.0 added error -->			
+            <?php if ($error_taxid1_validation) { ?>
+              <span class="error"><?php echo $error_taxid1_validation; ?></span>
+            <?php } ?>				
+            </td>
+          </tr>	
+<!-- CF -->		
+<?php	switch ($this->config->get('config_country_id')) { 
+		// Italy	
+		case "105" :	
+		// Spain	
+		case "195" : ?>	  
+		  <?php if ($cust_tax_group_id == 1) { ?> 	
+		  <tr id="taxid2" >
+		    <td><span id="taxid2R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 2) { ?> 	
+		  <tr id="taxid2" >
+		    <td><span id="taxid2R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <tr id="taxid2" style="display: none;">
+		    <td><span id="taxid2R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid2; ?></td>
+            <td><input type="text" name="taxid2" value="<?php echo $taxid2; ?>" /> 
+            <?php if ($error_taxid2) { ?>
+              <span class="error"><?php echo $error_taxid2; ?></span>
+            <?php } ?>
+            </td>
+          </tr>	
+	<?php	break;	
+		// Default - France: 73 - Germany: 81 - UK: 222 
+		default :	
+		break;
+		}	?> 	
+          <tr>
+            <td><span class="required">*</span> <?php echo $entry_address_1; ?></td>
+            <td><input type="text" name="address_1" value="<?php echo $address_1; ?>" />
+              <?php if ($error_address_1) { ?>
+              <span class="error"><?php echo $error_address_1; ?></span>
+              <?php } ?></td>
+          </tr>
+          <tr>
+            <td><?php echo $entry_address_2; ?></td>
+            <td><input type="text" name="address_2" value="<?php echo $address_2; ?>" /></td>
+          </tr>
+          <tr>
+            <td><span class="required">*</span> <?php echo $entry_city; ?></td>
+            <td><input type="text" name="city" value="<?php echo $city; ?>" />
+              <?php if ($error_city) { ?>
+              <span class="error"><?php echo $error_city; ?></span>
+              <?php } ?></td>
+          </tr>
+          <tr>
+          <td><span class="required">*</span> <?php echo $entry_postcode; ?></td>
+          <td><input type="text" name="postcode" value="<?php echo $postcode; ?>" />
+            <?php if ($error_postcode) { ?>
+            <span class="error"><?php echo $error_postcode; ?></span>
+            <?php } ?></td>
+          </tr>
+          <tr>
+            <td><span class="required">*</span> <?php echo $entry_country; ?></td>
+            <td><select name="country_id" id="country_id" onchange="$('select[name=\'zone_id\']').load('index.php?route=account/address/zone&country_id=' + this.value + '&zone_id=<?php echo $zone_id; ?>');">
+                <option value="FALSE"><?php echo $text_select; ?></option>
+                <?php foreach ($countries as $country) { ?>
+                <?php if ($country['country_id'] == $country_id) { ?>
+                <option value="<?php echo $country['country_id']; ?>" selected="selected"><?php echo $country['name']; ?></option>
+                <?php } else { ?>
+                <option value="<?php echo $country['country_id']; ?>"><?php echo $country['name']; ?></option>
+                <?php } ?>
+                <?php } ?>
+              </select>
+              <?php if ($error_country) { ?>
+              <span class="error"><?php echo $error_country; ?></span>
+              <?php } ?></td>
+          </tr>
+          <tr>
+            <td><span class="required">*</span> <?php echo $entry_zone; ?></td>
+            <td><select name="zone_id">
+              </select>
+              <?php if ($error_zone) { ?>
+              <span class="error"><?php echo $error_zone; ?></span>
+              <?php } ?></td>
+          </tr>		  
+	    </table>
+	</div>
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>	
+
+		<operation>
+            <search position="before"><![CDATA[
+			<?php echo $footer; ?> 
+            ]]></search>
+            <add><![CDATA[
+<script type="text/javascript"><!--
+$('select[name=\'zone_id\']').load('index.php?route=account/address/zone&country_id=<?php echo $country_id; ?>&zone_id=<?php echo $zone_id; ?>');
+//--></script>
+			
+<script type="text/javascript"><!--
+function hide_show_us(ctgi)
+{
+switch (ctgi) {
+				case 1 :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="";				
+				break
+			   
+				case 2 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+				
+				case 3 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+
+				default :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";				
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break				
+				}
+}
+//--></script>
+            ]]></add>
+        </operation>	
+	</file>
+	
+	<file name="catalog/view/theme/shoppica/template/account/address_form.tpl">
+			<operation>
+            <search position="replace" offset="14"><![CDATA[
+            <p class="s_error_msg"><?php echo $error_zone; ?></p>
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+              <span class="error"><?php echo $error_zone; ?></span>
+              <?php endif; ?>
+          </tr>
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>	
+</file>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<file name="catalog/view/theme/shoppica/template/checkout/checkout.tpl">
+		
+		<operation>
+            <search position="before" index="1"><![CDATA[
+				if (json['error']['warning']) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod 
+				if (json['error']['nonatforeign']) {
+					$('.buttons').prepend('</br><div class="warning" style="display: none;">' + json['error']['nonatforeign'] + '</div>');
+					
+					$('.warning').fadeIn('slow');
+				}
+				if (json['error']['nonatexempt']) {
+					$('.buttons').prepend('</br><div class="warning" style="display: none;">' + json['error']['nonatexempt'] + '</div>');
+					
+					$('.warning').fadeIn('slow');
+				}				
+// madimar mod end
+            ]]></add>
+        </operation>	
+
+		<operation>
+            <search position="replace" offset="2" index="2,5"><![CDATA[
+				if (json['error']) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod			
+			var elements = { "firstname" : "", "lastname" : "", "email" : "", "telephone" : "", "address_1" : "", "city" : "", "postcode" : "", "country" : "country_id", "zone" : "select:zone_id", "password" : "", "confirm"  : "", "company" : "", "taxid1" : "", "taxid1_validation" : "", "taxid2" : "" };
+// madimar mod end
+            ]]></add>
+        </operation>		
+		
+<!-- Guest Checkout -->		
+		<operation>
+            <search position="replace" ><![CDATA[
+		data: $('#payment-address input[type=\'text\'], #payment-address input[type=\'checkbox\']:checked, #payment-address select'),
+            ]]></search>
+            <add><![CDATA[
+// madimar mod 
+		data: $('#payment-address input[type=\'text\'], #payment-address input[type=\'checkbox\']:checked, #payment-address input[type=\'radio\']:checked, #payment-address select'),			
+// madimar mod end
+            ]]></add>
+        </operation>	
+		
+		<operation>
+            <search position="before" index="5"><![CDATA[
+				if (json['error']) {
+            ]]></search>
+            <add><![CDATA[
+// madimar mod 
+				if (json['error']['nonatforeign']) {
+					$('.buttons').prepend('</br><div class="warning" style="display: none;">' + json['error']['nonatforeign'] + '</div>');
+					
+					$('.warning').fadeIn('slow');
+				}
+				if (json['error']['nonatexempt']) {
+					$('.buttons').prepend('</br><div class="warning" style="display: none;">' + json['error']['nonatexempt'] + '</div>');
+					
+					$('.warning').fadeIn('slow');
+				}				
+// madimar mod end
+            ]]></add>
+        </operation>	
+	</file>
+
+	
+<!-- Registration during checkout -->		
+	
+	<file name="catalog/view/theme/*/template/checkout/register.tpl">
+		<operation>
+            <search position="before"><![CDATA[
+			<div class="left" style="width: 49.99%;">
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+<?php if ($num_cust_tax_groups > 1) { ?>
+<div id="cust-tax-category">
+<h2><?php echo $text_your_tax_category; ?></h2>
+	<p><?php echo $text_tax_category; ?></p>
+	<?php foreach ($cust_tax_groups as $cust_tax_group) { ?>
+		<label for="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="cursor: pointer; vertical-align: middle;" >
+			<?php if ($cust_tax_group['cust_tax_group_id'] == $cust_tax_group_id) { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" checked="checked"  style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				<br />
+				<div style="color: #999; display: block; font-size: 12px; " ><?php echo $cust_tax_group['description']; ?></div>
+		</label>
+		<br />
+            <?php } else { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				<br />
+				<div style="color: #999; display:block; font-size: 12px; " ><?php echo $cust_tax_group['description']; ?> </div></label>
+		<br />		
+            <?php } ?>
+    <?php } ?>
+</div>				
+<br />	
+<?php } ?>
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="replace"  index="1" offset="5"><![CDATA[
+<div class="right">
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+<div class="right">
+  <h2><?php echo $text_your_address; ?></h2>
+		  <?php if ($cust_tax_group_id <> 1) { ?>
+		  <div id="cmpn" >
+		  <?php } else { ?>
+		  <div id="cmpn" style="display: none;">
+		  <?php } ?>
+			  <span class="required">*</span> <?php echo $entry_company; ?><br />
+			  <input type="text" name="company" value="" class="large-field" />
+			  <br />
+			  <br />
+		  </div>  
+
+		  <?php if ($cust_tax_group_id == 2) { ?> 	
+		  <div id="taxid1" >
+		    <span id="taxid1R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 3) { ?> 	
+		  <div id="taxid1" >
+		    <span id="taxid1R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <div id="taxid1" style="display: none;">
+		    <span id="taxid1R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid1; ?><br />
+            <input type="text" name="taxid1" value="" class="large-field" />
+			  <br />
+			  <br />			
+		  </div> 
+<!-- CF -->		  
+<?php	switch ($this->config->get('config_country_id')) { 
+		// Italy	
+		case "105" :	
+		// Spain	
+		case "195" : ?>	
+		  <?php if ($cust_tax_group_id == 1) { ?> 	
+		  <div id="taxid2" >
+		    <span id="taxid2R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 2) { ?> 	
+		  <div id="taxid2" >
+		    <span id="taxid2R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <div id="taxid2" style="display: none;">
+		    <span id="taxid2R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid2; ?><br />
+            <input type="text" name="taxid2" value="" class="large-field" />
+			  <br />
+			  <br />			
+          </div>
+<?php	break;
+		
+		// Default - France: 73 - Germany: 81 - UK: 222 
+		default : 				
+		break;	
+		} ?>		
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="after"><![CDATA[
+//--></script>
+            ]]></search>
+            <add><![CDATA[
+<script type="text/javascript"><!--
+function hide_show_us(ctgi)
+{
+switch (ctgi) {
+				case 1 :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="";				
+				break
+			   
+				case 2 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+				
+				case 3 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+
+				default :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";				
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break				
+				}
+}
+//--></script>
+            ]]></add>
+        </operation>	
+
+	</file>
+	
+	<file name="catalog/view/theme/*/template/checkout/guest.tpl">
+		<operation>
+            <search position="before"><![CDATA[
+			<div class="left">
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+<?php if ($num_cust_tax_groups > 1) { ?>
+<div id="cust-tax-category">
+<h2><?php echo $text_your_tax_category; ?></h2>
+		<p><?php echo $text_tax_category; ?></p>
+                <?php foreach ($cust_tax_groups as $cust_tax_group) { ?>
+				<label for="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="cursor: pointer; vertical-align: middle;" >
+                <?php if ($cust_tax_group['cust_tax_group_id'] == $cust_tax_group_id) { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" checked="checked"  style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				<br />
+				<div style="color: #999; display: block; font-size: 12px; " ><?php echo $cust_tax_group['description']; ?> </div></label>
+<br />
+                <?php } else { ?>
+				<input type="radio" name="cust_tax_group_id" value="<?php echo $cust_tax_group['cust_tax_group_id']; ?>" id="ctgid<?php echo $cust_tax_group['cust_tax_group_id']; ?>" style="vertical-align: middle;"  onClick="hide_show_us(<?php echo $cust_tax_group['cust_tax_group_id'] ?>)" /> <?php echo $cust_tax_group['name']; ?>  
+				<br />
+				<div style="color: #999; display:block; font-size: 12px; " ><?php echo $cust_tax_group['description']; ?> </div></label>
+<br />				
+                <?php } ?>
+                <?php } ?>
+</div>				
+<br />
+<?php } ?>			
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>
+
+
+		<operation>
+            <search position="replace"  index="1" offset="5"><![CDATA[
+<div class="right">
+            ]]></search>
+            <add><![CDATA[
+<!-- madimar mod -->
+<div class="right">
+  <h2><?php echo $text_your_address; ?></h2>
+		  <?php if ($cust_tax_group_id <> 1) { ?>
+		  <div id="cmpn" >
+		  <?php } else { ?>
+		  <div id="cmpn" style="display: none;">
+		  <?php } ?>
+			  <span class="required">*</span> <?php echo $entry_company; ?><br />
+			  <input type="text" name="company" value="" class="large-field" />
+			  <br />
+			  <br />
+		  </div>  
+
+		  <?php if ($cust_tax_group_id == 2) { ?> 	
+		  <div id="taxid1" >
+		    <span id="taxid1R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 3) { ?> 	
+		  <div id="taxid1" >
+		    <span id="taxid1R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <div id="taxid1" style="display: none;">
+		    <span id="taxid1R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid1; ?><br />
+            <input type="text" name="taxid1" value="" class="large-field" />
+			  <br />
+			  <br />			
+		  </div> 
+<!-- CF -->		 
+<?php	switch ($this->config->get('config_country_id')) { 
+		// Italy	
+		case "105" :	
+		// Spain	
+		case "195" : ?>		 
+		  <?php if ($cust_tax_group_id == 1) { ?> 	
+		  <div id="taxid2" >
+		    <span id="taxid2R" class="required">* </span>
+		  <?php } elseif ($cust_tax_group_id == 2) { ?> 	
+		  <div id="taxid2" >
+		    <span id="taxid2R" style="display: none;" class="required">* </span>
+			<?php } else { ?>		  
+		  <div id="taxid2" style="display: none;">
+		    <span id="taxid2R" class="required">* </span>		  
+		  <?php } ?>
+		  <?php echo $entry_taxid2; ?><br />
+            <input type="text" name="taxid2" value="" class="large-field" />
+			  <br />
+			  <br />			
+          </div>
+	<?php	break;	
+		// Default - France: 73 - Germany: 81 - UK: 222 
+		default :	
+		break;
+		}	?> 			  
+<!-- madimar mod end -->
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="after" index="1"><![CDATA[
+//--></script>
+            ]]></search>
+            <add><![CDATA[
+<script type="text/javascript"><!--
+function hide_show_us(ctgi)
+{
+switch (ctgi) {
+				case 1 :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="";				
+				break
+			   
+				case 2 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="";
+				document.getElementById('taxid2').style.display="";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+				
+				case 3 :
+				document.getElementById('cmpn').style.display="";
+				document.getElementById('taxid1').style.display="";
+				document.getElementById('taxid1R').style.display="none";
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break
+
+				default :
+				document.getElementById('cmpn').style.display="none";
+				document.getElementById('taxid1').style.display="none";
+				document.getElementById('taxid1R').style.display="none";				
+				document.getElementById('taxid2').style.display="none";
+				document.getElementById('taxid2R').style.display="none";	
+				break				
+				}
+}
+//--></script>
+            ]]></add>
+        </operation>	
+
+	</file>
+
+</modification>

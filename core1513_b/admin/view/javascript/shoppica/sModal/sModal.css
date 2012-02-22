@@ -1,0 +1,133 @@
+#sm_window * {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", Arial, Helvetica, sans-serif;
+}
+#sm_window a {
+  text-decoration: none;
+}
+#sm_window a:hover {
+  color: #000;
+}
+#sm_window img {
+  display: block;
+}
+#sm_logo {
+  display: none;
+}
+#sm_overlay {
+  position: fixed;
+  z-index: 1000;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+}
+.sm_overlayBG {
+  background-color:#000;
+  filter:alpha(opacity=15);
+  opacity: 0.15;
+}
+
+#sm_window {
+  z-index: 1100;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  display:none;
+  font-size: 12px;
+  color: #333333;
+  background: #ffffff;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  box-shadow:
+    0 0 20px rgba(0, 0, 0, 0.2),
+    0 1px 0 rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 #fff,
+    inset 1px 0 0 #fff,
+    inset -1px 0 0 #fff,
+    inset 0 5px 50px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow:
+    0 0 20px rgba(0, 0, 0, 0.2),
+    0 1px 0 rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 #fff,
+    inset 1px 0 0 #fff,
+    inset -1px 0 0 #fff,
+    inset 0 5px 50px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow:
+    0 0 20px rgba(0, 0, 0, 0.2),
+    0 1px 0 rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 #fff,
+    inset 1px 0 0 #fff,
+    inset -1px 0 0 #fff,
+    inset 0 5px 50px rgba(0, 0, 0, 0.1);
+}
+
+#sm_closeWindowButton {
+  position: absolute;
+  z-index: 1020;
+  top: 10px; right: 10px;
+  display: block;
+  width: 15px;
+  height: 15px;
+  text-indent: -1000em;
+  background: url(../../../image/cp/sm_close.png) no-repeat center top;
+}
+#sm_closeWindowButton:hover {
+  background-position: center bottom;
+}
+#sm_ajaxContent h2 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: normal;
+  color: #333;
+}
+
+#sm_ajaxContent {
+  clear: both;
+  overflow: hidden;
+  text-align: left;
+  padding: 10px 20px 20px 20px;
+}
+
+#sm_window .s_button_add {
+  width: 60px;
+  padding: 0;
+}
+#sm_window .s_button_add .s_text_remove,
+#sm_window .s_button_add .s_text_added,
+#sm_window .s_selected .s_button_add .s_text_add,
+#sm_window .s_selected .s_button_add .s_text_remove,
+#sm_window .s_selected .s_button_add:hover .s_text_added
+{
+  display: none;
+}
+#sm_window .s_selected .s_button_add .s_text_added,
+#sm_window .s_selected .s_button_add:hover .s_text_remove
+{
+  display: block;
+}
+
+#sm_window .s_button_add input {
+  display: none;
+  top: -100px;
+  position: absolute;
+}
+
+#sm_window .s_table input[type=text] {
+  padding: 2px 3px;
+  font-size: 10px;
+  background: #fff;
+  border: 1px solid;
+  border-color: #999 #eee #eee #999;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  box-shadow: 1px 1px 0 #fff, inset 0 2px 2px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: 1px 1px 0 #fff, inset 0 2px 2px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 1px 1px 0 #fff, inset 0 2px 2px rgba(0, 0, 0, 0.1);
+}
+#sm_window .s_table input[type=text]:focus,
+#sm_window .s_table input[type=text]:hover
+{
+  border-color: #666 #ccc #ccc #666;
+}
