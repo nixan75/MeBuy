@@ -1,0 +1,35 @@
+<modification>
+	<id>admin_view_template_common_header.tpl</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="admin/view/template/common/header.tpl">
+<!-- SALES REP -->
+		<operation>
+            <search position="before">
+			<![CDATA[
+			<li><a href="<?php echo $affiliate; ?>"><?php echo $text_affiliate; ?></a></li>
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			<li><a href="<?php echo $salesrep; ?>"><?php echo $text_salesrep; ?></a></li>
+			]]>
+			</add>
+		</operation>
+	
+		<operation>
+            <search position="before">
+			<![CDATA[
+              <li><a href="<?php echo $report_sale_order; ?>"><?php echo $text_report_sale_order; ?></a></li>
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+            <li><a href="<?php echo $report_sale_salesrep; ?>"><?php echo $text_report_sale_salesrep; ?></a></li>
+			]]>
+			</add>
+		</operation>
+	</file>
+</modification>

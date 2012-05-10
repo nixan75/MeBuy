@@ -1,0 +1,68 @@
+<modification>
+	<id>system_library_user.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="system/library/user.php">
+<!-- SALES REP -->	
+		<operation>
+            <search position="after">
+			<![CDATA[
+			private $permission = array();
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			private $salesrep_id;
+            ]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="before" index="1">
+			<![CDATA[
+			} else {
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$salesrep_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "salesrep WHERE email = '" . $user_query->row['email'] . "' AND status = '1'");
+			if ($salesrep_query->num_rows) {			
+				$this->salesrep_id = $salesrep_query->row['salesrep_id'];
+			} else {
+				$this->salesrep_id = 0;
+			}
+            ]]>
+			</add>
+        </operation>		
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->username = '';
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->salesrep_id = '';	
+            ]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="before">
+			<![CDATA[
+			public function getUserName() {
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			public function getUserSalesRepId() {
+			return $this->salesrep_id;	
+			}
+            ]]>
+			</add>
+        </operation>
+	</file>
+</modification>

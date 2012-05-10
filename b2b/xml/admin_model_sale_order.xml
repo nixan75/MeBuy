@@ -1,0 +1,154 @@
+<modification>
+	<id>admin_model_sale_order.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="admin/model/sale/order.php">
+<!-- SALES REP -->
+		<operation>
+            <search position="after">
+			<![CDATA[
+			class ModelSaleOrder extends Model {
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			public function updateSalesRep($order_id, $data) {
+			$this->db->query("UPDATE `" . DB_PREFIX . "order` SET salesrep_id = '" . (isset($data['salesrep_id']) ? $this->db->escape($data['salesrep_id']) : 0) . "', date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
+			}
+			]]>
+			</add>
+        </operation>
+		<!-- add new filter begin -->		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$sql = "SELECT o.order_id, CONCAT(o.firstname, ' ', o.lastname) AS customer, (SELECT os.name FROM " . DB_PREFIX . "order_status os WHERE os.order_status_id = o.order_status_id AND os.language_id = '" . (int)$this->config->get('config_language_id') . "') AS status, o.total, o.currency_code, o.currency_value, o.date_added, o.date_modified FROM `" . DB_PREFIX . "order` o";
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			$sql = str_replace (' FROM `', ', sr.name AS salesrep FROM `', $sql);
+			$sql .= " LEFT JOIN " . DB_PREFIX . "salesrep sr ON (o.salesrep_id = sr.salesrep_id) ";	
+			]]>
+			</add>
+        </operation>		
+		
+		<operation>
+            <search position="before" index="1">
+			<![CDATA[
+			if (!empty($data['filter_date_added'])) {
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if (isset($data['filter_salesrep_id']) && !is_null($data['filter_salesrep_id'])) {
+			$sql .= " AND o.salesrep_id = '" . (int)$data['filter_salesrep_id'] . "'";
+			}
+			]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="before" index="2">
+			<![CDATA[
+			if (!empty($data['filter_date_added'])) {
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if (isset($data['filter_salesrep_id']) && !is_null($data['filter_salesrep_id'])) {
+			$sql .= " AND salesrep_id = '" . (int)$data['filter_salesrep_id'] . "'";
+			}
+			]]>
+			</add>
+        </operation>		
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			'customer',
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			'salesrep',
+			]]>
+			</add>
+        </operation>		
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+				'customer_group_id'       => $order_query->row['customer_group_id'],
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+				'salesrep_id'       => $order_query->row['salesrep_id'],
+			]]>
+			</add>
+        </operation>			
+		
+		<operation>
+            <search position="before" index="1">
+			<![CDATA[
+			$sort_data = array(
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$sql .= " AND o.salesrep_id = '" . $this->user->getUserSalesRepId() . "'";
+			}
+			]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="before" index="2">
+			<![CDATA[
+			$query = $this->db->query($sql);
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$sql .= " AND salesrep_id = '" . $this->user->getUserSalesRepId() . "'";
+			}	
+			]]>
+			</add>
+        </operation>	
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$query = $this->db->query("SELECT SUM(total) AS total FROM `" . DB_PREFIX . "order` WHERE order_status_id > '0'");
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$query = $this->db->query("SELECT SUM(total) AS total FROM `" . DB_PREFIX . "order` WHERE order_status_id > '0' AND salesrep_id = '" . $this->user->getUserSalesRepId() . "'");
+			}
+			]]>
+			</add>
+        </operation>			
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$query = $this->db->query("SELECT SUM(total) AS total FROM `" . DB_PREFIX . "order` WHERE order_status_id > '0' AND YEAR(date_added) = '" . (int)$year . "'");
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$query = $this->db->query("SELECT SUM(total) AS total FROM `" . DB_PREFIX . "order` WHERE order_status_id > '0' AND YEAR(date_added) = '" . (int)$year . "' AND salesrep_id = '" . $this->user->getUserSalesRepId() . "'");
+			}
+			]]>
+			</add>
+        </operation>
+	</file>
+</modification>

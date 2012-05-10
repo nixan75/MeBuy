@@ -1,0 +1,187 @@
+<modification>
+	<id>admin_controller_sale_contact.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="admin/controller/sale/contact.php">
+<!-- SALES REP -->
+	<operation>
+            <search position="before" index="1">
+            <![CDATA[
+			$emails = array();
+			]]>
+			</search>
+            <add>
+            <![CDATA[
+			$this->load->model('sale/salesrep');
+			$this->data['salesrep'] = $this->model_sale_salesrep->getSalesRep($this->user->getUserSalesRepId());
+            ]]>
+           	</add>
+	</operation>	
+	
+	<operation>
+            <search position="before" index="1">
+            <![CDATA[
+			switch ($this->request->post['to']) {
+			]]>
+			</search>
+            <add>
+            <![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			switch ($this->request->post['to']) {		
+			case 'customer_mine':
+			$results = $this->model_sale_customer->getCustomers();
+			
+			foreach ($results as $result) {
+			$emails[] = $result['email'];
+			}						
+			break;
+			case 'customer':
+			if (isset($this->request->post['customer'])) {					
+			foreach ($this->request->post['customer'] as $customer_id) {
+			$customer_info = $this->model_sale_customer->getCustomer($customer_id);
+							
+			if ($customer_info) {
+			$emails[] = $customer_info['email'];
+			}
+			}
+			}
+			break;	
+			}		
+			} else {
+            ]]>
+            </add>
+	</operation>		
+
+	<operation>
+            <search position="before" index="1">
+            <![CDATA[
+			$emails = array_unique($emails);
+			]]>
+			</search>
+            <add>
+            <![CDATA[
+			}
+            ]]>
+            </add>
+	</operation>		
+		
+	<operation>
+            <search position="after">
+            <![CDATA[
+			$this->data['stores'] = $this->model_setting_store->getStores();
+			]]>
+			</search>
+            <add>
+            <![CDATA[
+			$this->load->model('sale/salesrep');
+
+			$this->data['salesrep'] = $this->model_sale_salesrep->getSalesRep($this->user->getUserSalesRepId());	
+            ]]>
+            </add>
+	</operation>
+
+	<operation>
+            <search position="after">
+            <![CDATA[
+			$this->data['text_product'] = $this->language->get('text_product');	
+			]]>
+			</search>
+            <add>
+            <![CDATA[
+			$this->data['text_customer_mine'] = $this->language->get('text_customer_mine');	
+            ]]>
+            </add>
+	</operation>
+
+	<operation>
+            <search position="before" index="1">
+            <![CDATA[
+			case 'affiliate_all':
+			]]>
+			</search>
+            <add>
+            <![CDATA[
+			case 'salesrep_all':
+			$results = $this->model_sale_salesrep->getSalesReps(NULL, 1);
+			
+			foreach ($results as $result) {
+			$emails[] = $result['email'];
+			}						
+			break;
+			case 'salesrep':
+			if (isset($this->request->post['salesrep'])) {					
+			foreach ($this->request->post['salesrep'] as $salesrep_id) {
+			$salesrep_info = $this->model_sale_salesrep->getSalesRep($salesrep_id);
+							
+			if ($salesrep_info) {
+			$emails[] = $salesrep_info['email'];
+			}
+			}
+			}
+			break;
+            ]]>
+            </add>
+	</operation>		
+
+	<operation>
+            <search position="after" index="1">
+            <![CDATA[
+			$this->data['text_product'] = $this->language->get('text_product');	
+			]]>
+			</search>
+            <add>
+            <![CDATA[
+			$this->data['text_salesrep_all'] = $this->language->get('text_salesrep_all');	
+			$this->data['text_salesrep'] = $this->language->get('text_salesrep');	
+			$this->data['entry_salesrep'] = $this->language->get('entry_salesrep');
+            ]]>
+            </add>
+	</operation>
+
+	<operation>
+            <search position="before" index="1">
+            <![CDATA[
+			$this->data['affiliates'] = array();	
+			]]>
+			</search>
+            <add>
+            <![CDATA[
+			$this->data['salesreps'] = array();
+		
+			if (isset($this->request->post['salesrep'])) {					
+			foreach ($this->request->post['salesrep'] as $salesrep_id) {
+			$salesrep_info = $this->model_sale_salesrep->getSalesRep($salesrep_id);
+					
+			if ($salesrep_info) {
+			$this->data['salesreps'][] = array(
+			'salesrep_id' => $salesrep_info['salesrep_id'],
+			'name'        => $salesrep_info['name']
+			);
+			}
+			}
+			}
+            ]]>
+            </add>
+	</operation>		
+		
+	<operation>
+            <search position="replace" index="1">
+            <![CDATA[
+			$mail->setFrom($this->config->get('config_email'));
+			]]>
+			</search>
+            <add>
+            <![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {	
+			$salesrep_info = $this->model_sale_salesrep->getSalesRep($this->user->getUserSalesRepId());
+			$mail->setFrom($salesrep_info['email']);
+			} else {
+			$mail->setFrom($this->config->get('config_email'));
+			}
+            ]]>
+            </add>
+	</operation>
+	</file>
+</modification>

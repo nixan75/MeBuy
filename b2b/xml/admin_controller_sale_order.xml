@@ -1,0 +1,247 @@
+<modification>
+	<id>admin_controller_sale_order.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="admin/controller/sale/order.php">
+<!-- SALES REP -->
+	<!-- edit order begin-->
+		<operation>
+            <search position="after" index="1">
+			<![CDATA[
+			if ($order_info) {
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			if (($this->request->server['REQUEST_METHOD'] == 'POST')) {
+			$this->model_sale_order->updateSalesRep($this->request->get['order_id'], $this->request->post);
+			$this->load->language('sale/order');	  		
+			$this->session->data['success'] = $this->language->get('text_success');
+			
+			$url = '';
+
+			if (isset($this->request->get['filter_order_id'])) {
+				$url .= '&filter_order_id=' . $this->request->get['filter_order_id'];
+			}
+			
+			if (isset($this->request->get['filter_customer'])) {
+				$url .= '&filter_customer=' . $this->request->get['filter_customer'];
+			}
+
+			if (isset($this->request->get['filter_salesrep_id'])) {
+				$url .= '&filter_salesrep_id=' . $this->request->get['filter_salesrep_id'];
+			}
+		
+			if (isset($this->request->get['filter_order_status_id'])) {
+				$url .= '&filter_order_status_id=' . $this->request->get['filter_order_status_id'];
+			}
+			
+			if (isset($this->request->get['filter_total'])) {
+				$url .= '&filter_total=' . $this->request->get['filter_total'];
+			}
+						
+			if (isset($this->request->get['filter_date_added'])) {
+				$url .= '&filter_date_added=' . $this->request->get['filter_date_added'];
+			}
+			
+			if (isset($this->request->get['filter_date_modified'])) {
+				$url .= '&filter_date_modified=' . $this->request->get['filter_date_modified'];
+			}
+
+			if (isset($this->request->get['sort'])) {
+				$url .= '&sort=' . $this->request->get['sort'];
+			}
+
+			if (isset($this->request->get['order'])) {
+				$url .= '&order=' . $this->request->get['order'];
+			}
+
+			if (isset($this->request->get['page'])) {
+				$url .= '&page=' . $this->request->get['page'];
+			}
+									
+			$this->redirect($this->url->link('sale/order', 'token=' . $this->session->data['token'] . $url, 'SSL'));
+			}
+            ]]>
+			</add>
+        </operation>	
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->data['column_customer'] = $this->language->get('column_customer');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['column_salesrep'] = $this->language->get('column_salesrep');
+            ]]>
+			</add>
+        </operation>	
+		
+		<operation>
+            <search position="before">
+			<![CDATA[
+			$this->data['invoice'] = $this->url->link('sale/order/invoice', 'token=' . $this->session->data['token'] . '&order_id=' . (int)$this->request->get['order_id'], 'SSL');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['action'] = $this->url->link('sale/order/info', 'token=' . $this->session->data['token'] . '&order_id=' . (int)$this->request->get['order_id'], 'SSL');
+            ]]>
+			</add>
+        </operation>		
+	
+		<operation>
+            <search position="before" index="4">
+			<![CDATA[
+			if (isset($this->request->get['filter_order_status_id'])) {
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			if (isset($this->request->get['filter_salesrep_id'])) {
+			$filter_salesrep_id = $this->request->get['filter_salesrep_id'];
+			} else {
+			$filter_salesrep_id = null;
+			}
+            ]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="before">
+			<![CDATA[
+			'filter_order_status_id' => $filter_order_status_id,
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			'filter_salesrep_id' => $filter_salesrep_id,
+            ]]>
+			</add>
+        </operation>	
+
+		<operation>
+            <search position="before" index="1">
+			<![CDATA[
+				'status'        => $result['status'],
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+				'salesrep'     => $result['salesrep'],
+            ]]>
+			</add>
+        </operation>		
+
+		<operation>
+            <search position="before">
+			<![CDATA[
+			$this->data['sort_status'] = $this->url->link('sale/order', 'token=' . $this->session->data['token'] . '&sort=status' . $url, 'SSL');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['sort_salesrep'] = $this->url->link('sale/order', 'token=' . $this->session->data['token'] . '&sort=salesrep' . $url, 'SSL');
+            ]]>
+			</add>
+        </operation>		
+
+		<operation>
+            <search position="before" index="1,2,3,5,6,7">
+			<![CDATA[
+			if (isset($this->request->get['filter_order_status_id'])) {
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			if (isset($this->request->get['filter_salesrep_id'])) {
+				$url .= '&filter_salesrep_id=' . $this->request->get['filter_salesrep_id'];
+			}
+            ]]>
+			</add>
+        </operation>		
+
+		<operation>
+            <search position="after" >
+			<![CDATA[
+				$this->data['filter_order_status_id'] = $filter_order_status_id;
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+				$this->data['filter_salesrep_id'] = $filter_salesrep_id;
+            ]]>
+			</add>
+        </operation>
+		<!-- add new filter end-->
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->data['lastname'] = $order_info['lastname'];
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['salesrep_id'] = $order_info['salesrep_id'];
+            ]]>
+			</add>
+        </operation>
+
+		<operation>
+            <search position="before">
+			<![CDATA[
+			$this->data['button_invoice'] = $this->language->get('button_invoice');	
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['button_save'] = $this->language->get('button_save');	
+            ]]>
+			</add>
+        </operation>		
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->data['entry_comment'] = $this->language->get('entry_comment');	
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['entry_salesrep'] = $this->language->get('entry_salesrep');
+            ]]>
+			</add>
+        </operation>			
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->data['text_ship_to'] = $this->language->get('text_ship_to');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['text_salesrep_id'] = $this->language->get('text_salesrep_id');
+            ]]>
+			</add>
+        </operation>
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->load->model('sale/order');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->load->model('sale/salesrep');
+			$this->data['salesreps'] = $this->model_sale_salesrep->getSalesReps();	
+            ]]>
+			</add>
+        </operation>		
+	</file>
+</modification>

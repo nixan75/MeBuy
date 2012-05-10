@@ -1,0 +1,74 @@
+<modification>
+	<id>catalog_language</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="catalog/language/italian/account/register.php">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			$_['entry_confirm']
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$_['entry_cf']  	= 'Codice Fiscale:';
+			$_['entry_vat']  	= 'Partita IVA:';
+			$_['purchasing_manager']  = 'Responsabile Acquisti';
+			$_['company_information']  = 'Dati Aziendali';
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="catalog/language/italian/account/edit.php">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			$_['entry_fax']
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$_['entry_cf']  	= 'Codice Fiscale:';
+			$_['entry_vat']  	= 'Partita IVA:';
+			$_['purchasing_manager']  = 'Responsabile Acquisti';
+			$_['company_information']  = 'Dati Aziendali';
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="catalog/language/italian/account/address.php">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			$_['text_delete']
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$_['purchasing_manager']  = 'Responsabile Acquisti';
+			$_['company_information']  = 'Dati Aziendali';
+			]]>
+			</add>
+		</operation>
+	</file>
+	
+	<file name="catalog/language/italian/checkout/checkout.php">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			$_['heading_title']
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$_['purchasing_manager']  = 'Responsabile Acquisti';
+			$_['company_information']  = 'Dati Aziendali';
+			]]>
+			</add>
+		</operation>
+	</file>
+</modification>

@@ -1,0 +1,164 @@
+<modification>
+	<id>admin_view_template_sale_customer-form.tpl</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+
+<!-- Scheda cliente -->	
+	<file name="admin/view/template/sale/customer_form.tpl">
+		<operation>
+			<search position="after" index="1">
+			<![CDATA[
+			<table class="form">
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<tr>
+                <td>
+                <h3><?php echo $purchasing_manager; ?></h3>
+                </td>
+              </tr>
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="after" offset="2">
+			<![CDATA[
+			<span class="error"><?php echo $error_lastname; ?></span>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<tr>
+              <td>
+              <h3><?php echo $company_information; ?></h3>
+              </td>
+              </tr>
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="after" index="2">
+			<![CDATA[
+			<table class="form">
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<tr>
+                <td>
+                <h3><?php echo $purchasing_manager; ?></h3>
+                </td>
+              </tr>
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="after" offset="2">
+			<![CDATA[
+			<span class="error"><?php echo $error_address_lastname[$address_row]; ?></span>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<tr>
+              <td>
+              <h3><?php echo $company_information; ?></h3>
+              </td>
+              </tr>
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="after">
+			<![CDATA[
+			html += '  <table class="form">';
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			html += '	<tr>';
+            html += '   <td>';
+            html += '	<h3><?php echo $purchasing_manager; ?></h3>';
+            html += '	</td>';
+            html += '	</tr>';
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="after" offset="1">
+			<![CDATA[
+			html += '      <td><input type="text" name="address[' + address_row + '][lastname]" value="" /></td>';
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			html += '	<tr>';
+            html += '	<td>';
+            html += '	<h3><?php echo $company_information; ?></h3>';
+            html += '	</td>';
+            html += '	</tr>';
+			]]>
+			</add>
+		</operation>
+		
+<!-- Scheda cliente Agginta campi Codice Fiscale e Partita Iva -->	
+        <operation>
+            <search position="before" offset="2">
+			<![CDATA[
+            <td><span class="required">*</span> <?php echo $entry_email; ?></td>
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+            <tr>
+				<td><span class="required">* </span><?php echo $entry_cf; ?></td>
+                <td><input type="text" name="cf" value="<?php echo $cf; ?>" /></td>
+			</tr>
+			<tr>
+				<td><span class="required">* </span><?php echo $entry_vat; ?></td>
+                <td><input type="text" name="vat" value="<?php echo $vat; ?>" /></td>
+			</tr>
+            ]]>
+			</add>
+        </operation>
+		
+<!-- SALES REP -->
+		<operation>
+            <search position="replace" >
+			<![CDATA[
+              <td><?php echo $entry_status; ?></td>
+            ]]>
+			</search>
+            <add>
+			<![CDATA[ 
+            <td><?php echo $entry_salesrep; ?></td>
+            <td><select name="salesrep_id">
+<!--                <?php if ($salesrep_id == "0") { ?>
+					<option value="0" selected="selected"><?php echo $text_none; ?></option>
+                <?php } else { ?>
+					<option value="0"><?php echo $text_none; ?></option>
+                <?php } ?>	
+-->				
+                <?php foreach ($salesreps as $salesrep) { ?>
+                <?php if ($salesrep['salesrep_id'] == $salesrep_id) { ?>
+                <option value="<?php echo $salesrep['salesrep_id']; ?>" selected="selected"><?php echo $salesrep['name']; ?></option>
+                <?php } else { ?>
+                <option value="<?php echo $salesrep['salesrep_id']; ?>"><?php echo $salesrep['name']; ?></option>
+                <?php } ?>
+                <?php } ?>
+              </select></td>
+          </tr>
+            <tr>
+              <td><?php echo $entry_status; ?></td>
+            ]]>
+			</add>
+        </operation>
+    </file>
+</modification>

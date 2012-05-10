@@ -1,0 +1,205 @@
+<modification>
+	<id>admin_controller_sale_customer.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="admin/controller/sale/customer.php">
+<!-- CODICE FISCALE E PARTITA IVA -->
+        <operation>
+            <search position="after">
+			<![CDATA[
+            $this->data['entry_lastname'] = $this->language->get('entry_lastname');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+            $this->data['entry_cf'] = $this->language->get('entry_cf');
+			$this->data['entry_vat'] = $this->language->get('entry_vat');
+			$this->data['purchasing_manager'] = $this->language->get('purchasing_manager');
+			$this->data['company_information'] = $this->language->get('company_information');
+            ]]>
+			</add>
+        </operation>
+        
+        <operation>
+            <search position="before">
+			<![CDATA[
+            if (isset($this->request->post['email'])) {
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+            if (isset($this->request->post['cf'])) {
+                $this->data['cf'] = $this->request->post['cf'];
+            } elseif (isset($customer_info)) {
+                $this->data['cf'] = $customer_info['cf'];
+            } else {
+                $this->data['cf'] = '';
+            }
+			
+			if (isset($this->request->post['vat'])) {
+                $this->data['vat'] = $this->request->post['vat'];
+            } elseif (isset($customer_info)) {
+                $this->data['vat'] = $customer_info['vat'];
+            } else {
+                $this->data['vat'] = '';
+            }
+            ]]>
+			</add>
+        </operation>
+		
+<!-- SALES REP -->	
+		<operation>
+            <search position="before" index="1,2,3,5,6,7,8,9">
+			<![CDATA[
+			if (isset($this->request->get['filter_status'])) {
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			if (isset($this->request->get['filter_salesrep_id'])) {
+				$url .= '&filter_salesrep_id=' . $this->request->get['filter_salesrep_id'];
+			}
+            ]]>
+			</add>
+        </operation>					
+		
+		<operation>
+            <search position="after" offset="2">
+			<![CDATA[
+			$filter_customer_group_id = null;
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			if (isset($this->request->get['filter_salesrep_id'])) {
+				$filter_salesrep_id = $this->request->get['filter_salesrep_id'];
+			} else {
+				$filter_salesrep_id = null;
+			}
+            ]]>
+			</add>
+        </operation>		
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			'filter_customer_group_id' => $filter_customer_group_id, 
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			'filter_salesrep_id' => $filter_salesrep_id, 
+            ]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			'customer_group' => $result['customer_group'],
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			'salesrep' => $result['salesrep'],
+            ]]>
+			</add>
+        </operation>	
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->data['column_customer_group'] = $this->language->get('column_customer_group');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['column_salesrep'] = $this->language->get('column_salesrep');
+            ]]>
+			</add>
+        </operation>			
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->data['sort_customer_group'] = $this->url->link('sale/customer', 'token=' . $this->session->data['token'] . '&sort=customer_group' . $url, 'SSL');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['sort_salesrep'] = $this->url->link('sale/customer', 'token=' . $this->session->data['token'] . '&sort=salesrep' . $url, 'SSL');
+            ]]>
+			</add>
+        </operation>
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->data['filter_customer_group_id'] = $filter_customer_group_id;
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['filter_salesrep_id'] = $filter_salesrep_id;
+            ]]>
+			</add>
+        </operation>		
+
+		<operation>
+            <search position="before">
+			<![CDATA[
+			$this->load->model('sale/customer_group');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->load->model('sale/salesrep');
+			$this->data['salesreps'] = $this->model_sale_salesrep->getSalesReps();
+            ]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->data['entry_zone'] = $this->language->get('entry_zone');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['entry_salesrep'] = $this->language->get('entry_salesrep');
+			$this->data['text_none'] = $this->language->get('text_none');
+            ]]>
+			</add>
+        </operation>
+
+		<operation>
+            <search position="before">
+			<![CDATA[
+			if (isset($this->request->post['status'])) {
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->load->model('sale/salesrep');
+
+			$data = array(
+				'filter_status'            => 1 
+				);			
+		
+			$this->data['salesreps'] = $this->model_sale_salesrep->getSalesReps($data);
+
+			if (isset($this->request->post['salesrep_id'])) {
+				$this->data['salesrep_id'] = $this->request->post['salesrep_id'];
+			} elseif (isset($customer_info)) { 
+				$this->data['salesrep_id'] = $customer_info['salesrep_id'];
+			} else {
+				$this->data['salesrep_id'] = '0';
+			}				
+			]]>
+			</add>
+        </operation>
+    </file>
+</modification>

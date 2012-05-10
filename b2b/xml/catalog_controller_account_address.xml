@@ -1,0 +1,22 @@
+<modification>
+	<id>catalog_controller_account_address.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+
+	<file name="catalog/controller/account/address.php">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			$this->data['heading_title'] = $this->language->get('heading_title');
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$this->data['purchasing_manager'] = $this->language->get('purchasing_manager');
+			$this->data['company_information'] = $this->language->get('company_information');
+			]]>
+			</add>
+		</operation>
+	</file>
+</modification>

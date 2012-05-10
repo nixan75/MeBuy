@@ -1,0 +1,36 @@
+<modification>
+	<id>admin_controller_common_header.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+<!-- SALES REP -->	
+	<file name="admin/controller/common/header.php">
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->data['text_customer_group'] = $this->language->get('text_customer_group');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['text_salesrep'] = $this->language->get('text_salesrep');
+			$this->data['text_report_sale_salesrep'] = $this->language->get('text_report_sale_salesrep');
+			]]>
+			</add>
+        </operation>
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->data['customer_group'] = $this->url->link('sale/customer_group', 'token=' . $this->session->data['token'], 'SSL');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->data['salesrep'] = $this->url->link('sale/salesrep', 'token=' . $this->session->data['token'], 'SSL');
+			$this->data['report_sale_salesrep'] = $this->url->link('report/sale_salesrep', 'token=' . $this->session->data['token'], 'SSL');	
+			]]>
+			</add>
+        </operation>		
+	</file>
+</modification>

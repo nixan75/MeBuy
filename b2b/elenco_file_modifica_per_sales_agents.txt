@@ -1,0 +1,23 @@
+admin/controller/common/header
+admin/controller/common/home
+admin/controller/sale/contact
+admin/controller/sale/customer (condiviso)OK
+admin/controller/sale/order
+
+admin/view/template/common/header
+admin/view/template/sale/customer_form (condiviso)OK
+admin/view/template/sale/customer_list (condiviso)OK
+admin/view/template/sale/order_info
+admin/view/template/sale/order_list
+
+admin/model/report/customer
+admin/model/report/sale
+admin/model/sale/customer (condiviso)OK
+admin/model/sale/order
+
+catalog/controller/checkout/confirm
+
+catalog/model/checkout/order
+
+system/library/customer
+system/library/user

@@ -1,0 +1,46 @@
+<modification>
+	<id>catalog_controller_account_register.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="catalog/controller/account/register.php">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			$this->data['entry_lastname'] = $this->language->get('entry_lastname');
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$this->data['entry_cf'] = $this->language->get('entry_cf');
+			$this->data['entry_vat'] = $this->language->get('entry_vat');
+			$this->data['purchasing_manager'] = $this->language->get('purchasing_manager');
+			$this->data['company_information'] = $this->language->get('company_information');
+			]]>
+			</add>
+		</operation>
+		<operation>
+			<search position="before">
+			<![CDATA[
+			if (isset($this->request->post['email'])) {
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			if (isset($this->request->post['cf'])) {
+    		$this->data['cf'] = $this->request->post['cf'];
+			} else {
+			$this->data['cf'] = '';
+			}
+			
+			if (isset($this->request->post['vat'])) {
+    		$this->data['vat'] = $this->request->post['vat'];
+			} else {
+			$this->data['vat'] = '';
+			}
+			]]>
+			</add>
+		</operation>
+	</file>
+</modification>

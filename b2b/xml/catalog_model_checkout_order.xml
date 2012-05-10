@@ -1,0 +1,63 @@
+<modification>
+	<id>catalog_model_checkout_order.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+
+	<file name="catalog/model/checkout/order.php">
+		<operation>
+            <search position="after"><![CDATA[
+		$order_id = $this->db->getLastId();
+			]]></search>
+        <add><![CDATA[
+			// madimar mod
+			$this->db->query("UPDATE `" . DB_PREFIX . "order` SET salesrep_id = '" . (isset($data['salesrep_id']) ? $this->db->escape($data['salesrep_id']) : 0) . "', " ."date_modified = NOW(), date_added = NOW() WHERE order_id = '" . (int)$order_id . "'");
+			// madimar mod fine
+		]]></add>
+        </operation>
+<!-- v1.2 -->
+
+		<operation>
+            <search position="before"><![CDATA[
+				'payment_method'          => $order_query->row['payment_method'],
+			]]></search>
+        <add><![CDATA[
+			// madimar mod
+				'salesrep_id'          => $order_query->row['salesrep_id'],
+			// madimar mod fine
+		]]></add>
+        </operation>		
+
+
+		<operation>
+            <search position="before"><![CDATA[
+			// Admin Alert Mail
+			]]></search>
+        <add><![CDATA[
+			// madimar mod
+				$this->load->model('account/salesrep');
+				$salesrep_info = $this->model_account_salesrep->getSalesRep($order_info['salesrep_id']);
+				$salesrep_email = $salesrep_info['email'];
+				$salesrep_alert = $salesrep_info['alert'];
+				$salesrep_additional_emails = $salesrep_info['additional_emails'];
+				
+				if ($salesrep_alert) {
+					$mail->setTo($salesrep_email);
+					$mail->send();
+				
+					$add_emails = explode(',', $salesrep_additional_emails);
+				
+						foreach ($add_emails as $add_email) {
+						if ($add_email && preg_match('/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i', $add_email)) {
+							$mail->setTo($add_email);
+							$mail->send();
+						}					
+					}
+				}
+			// madimar mod fine
+		]]></add>
+        </operation>		
+<!-- v1.2 end -->		
+
+	</file>
+</modification>

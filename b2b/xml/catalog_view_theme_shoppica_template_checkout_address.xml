@@ -1,0 +1,34 @@
+<modification>
+	<id>catalog_view_theme_shoppica_template_checkout_address.tpl</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+
+	<file name="catalog/view/theme/shoppica/template/checkout/address.tpl">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			<form id="<?php echo $type; ?>_form" class="s_address" style="display: none;">
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<h2><?php echo $purchasing_manager; ?></h2>
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="before" index="3">
+			<![CDATA[
+			<div class="s_row_2 clearfix">
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<h2><?php echo $company_information; ?></h2>
+			]]>
+			</add>
+		</operation>
+	</file>
+</modification>

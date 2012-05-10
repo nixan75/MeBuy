@@ -1,0 +1,22 @@
+<modification>
+	<id>catalog_controller_checkout_address.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+
+	<file name="catalog/controller/checkout/address.php">
+		<operation>
+			<search position="after">
+			<![CDATA[
+			$this->data['text_select'] = $this->language->get('text_select');
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$this->data['purchasing_manager'] = $this->language->get('purchasing_manager');
+			$this->data['company_information'] = $this->language->get('company_information');
+			]]>
+			</add>
+		</operation>
+	</file>
+</modification>

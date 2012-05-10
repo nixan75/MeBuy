@@ -1,0 +1,86 @@
+<modification>
+	<id>admin_model_report_customer.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="admin/model/report/customer.php">
+<!-- SALES REP -->
+		<operation>
+            <search position="before" index="1"><![CDATA[
+		if (!is_null($data['filter_order_status_id'])) {
+			]]></search>
+            <add><![CDATA[
+		if ($this->user->getUserSalesRepId() != 0) {
+			$sql .= " AND c.salesrep_id = '" . $this->user->getUserSalesRepId() . "'";
+		}
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="before" index="2"><![CDATA[
+		if (!is_null($data['filter_order_status_id'])) {
+			]]></search>
+            <add><![CDATA[
+		if ($this->user->getUserSalesRepId() != 0) {
+			$sql .= " AND o.salesrep_id = '" . $this->user->getUserSalesRepId() . "'";
+		}
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="before" index="3,4,5,6"><![CDATA[
+		if (!empty($data['filter_date_start'])) {
+			]]></search>
+            <add><![CDATA[
+		if ($this->user->getUserSalesRepId() != 0) {
+			$implode[] = "c.salesrep_id = '" . $this->user->getUserSalesRepId() . "'";
+		}
+			]]></add>
+        </operation>		
+
+		<operation>
+            <search position="before" index="2"><![CDATA[
+$implode = array();
+			]]></search>
+            <add><![CDATA[
+		if ($this->user->getUserSalesRepId() != 0) {
+		$sql .= " cr LEFT JOIN `" . DB_PREFIX . "customer` c ON (cr.customer_id = c.customer_id)";
+		} else {
+		$sql .= " cr";
+		}
+			]]></add>
+        </operation>
+
+		<operation>
+            <search position="replace"><![CDATA[
+		$sql = "SELECT COUNT(DISTINCT customer_id) AS total FROM `" . DB_PREFIX . "customer_reward`";
+			]]></search>
+            <add><![CDATA[
+		$sql = "SELECT COUNT(DISTINCT cr.customer_id) AS total FROM `" . DB_PREFIX . "customer_reward`";
+			]]></add>
+        </operation>
+
+		<operation>
+            <search position="before" index="4"><![CDATA[
+$implode = array();
+			]]></search>
+            <add><![CDATA[
+		if ($this->user->getUserSalesRepId() != 0) {
+		$sql .= " ct LEFT JOIN `" . DB_PREFIX . "customer` c ON (ct.customer_id = c.customer_id)";
+		} else {
+		$sql .= " ct";
+		}
+			]]></add>
+        </operation>
+
+		<operation>
+            <search position="replace"><![CDATA[
+		$sql = "SELECT COUNT(DISTINCT customer_id) AS total FROM `" . DB_PREFIX . "customer_transaction`";
+			]]></search>
+            <add><![CDATA[
+		$sql = "SELECT COUNT(DISTINCT ct.customer_id) AS total FROM `" . DB_PREFIX . "customer_transaction`";
+			]]></add>
+        </operation>
+	</file>
+</modification>

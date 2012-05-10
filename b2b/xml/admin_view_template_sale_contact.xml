@@ -1,0 +1,147 @@
+<modification>
+	<id>admin_view_template_sale_contact.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="admin/view/template/sale/contact.tpl">
+<!-- SALES REP -->
+		<operation>
+            <search position="after" index="1"><![CDATA[
+            <td><select name="store_id">
+			]]></search>
+            <add><![CDATA[ 
+			<?php if ($this->user->getUserSalesRepId() == 0) {  ?> 
+            ]]></add>
+        </operation>
+	
+		<operation>
+            <search position="before" index="1"><![CDATA[
+              </select></td>
+			]]></search>
+            <add><![CDATA[
+            <?php } else { ?>
+					<option value="<?php echo $salesrep['salesrep_id']; ?>"><?php echo $salesrep['name']; ?></option>
+            <?php } ?> 
+            ]]></add>
+        </operation>		
+		
+		<operation>
+            <search position="after" index="1"><![CDATA[
+            <td><select name="to">
+			]]></search>
+            <add><![CDATA[ 
+				<?php if ($this->user->getUserSalesRepId() != 0) { ?>
+					<?php if ($to == 'customer_mine') { ?>
+					<option value="customer_mine" selected="selected"><?php echo $text_customer_mine; ?></option>
+					<?php } else { ?>
+					<option value="customer_mine"><?php echo $text_customer_mine; ?></option>
+					<?php } ?>
+					<?php if ($to == 'customer') { ?>
+					<option value="customer" selected="selected"><?php echo $text_customer; ?></option>
+					<?php } else { ?>
+					<option value="customer"><?php echo $text_customer; ?></option>
+					<?php } ?>
+                <?php } else { ?> 
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="before" index="2"><![CDATA[
+              </select></td>
+			]]></search>
+            <add><![CDATA[
+				<?php } ?>
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="before"><![CDATA[
+                <?php if ($to == 'affiliate_all') { ?>
+			]]></search>
+            <add><![CDATA[ 
+                <?php if ($to == 'salesrep_all') { ?>
+                <option value="salesrep_all" selected="selected"><?php echo $text_salesrep_all; ?></option>
+                <?php } else { ?>
+                <option value="salesrep_all"><?php echo $text_salesrep_all; ?></option>
+                <?php } ?>
+                <?php if ($to == 'salesrep') { ?>
+                <option value="salesrep" selected="selected"><?php echo $text_salesrep; ?></option>
+                <?php } else { ?>
+                <option value="salesrep"><?php echo $text_salesrep; ?></option>
+                <?php } ?>
+            ]]></add>
+        </operation>		
+
+		<operation>
+            <search position="before"><![CDATA[
+          <tbody id="to-affiliate" class="to">
+			]]></search>
+            <add><![CDATA[ 
+          <tbody id="to-salesrep" class="to">
+            <tr>
+              <td><?php echo $entry_salesrep; ?></td>
+              <td><input type="text" name="salesreps" value="" /></td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td><div class="scrollbox" id="salesrep">
+                  <?php $class = 'odd'; ?>
+                  <?php foreach ($salesreps as $salesrep) { ?>
+                  <?php $class = ($class == 'even' ? 'odd' : 'even'); ?>
+                  <div id="salesrep<?php echo $salesrep['salesrep_id']; ?>" class="<?php echo $class; ?>"><?php echo $salesrep['name']; ?><img src="view/image/delete.png" />
+                    <input type="hidden" name="salesrep[]" value="<?php echo $salesrep['salesrep_id']; ?>" />
+                  </div>
+                  <?php } ?>
+                </div></td>
+            </tr>
+          </tbody> 
+            ]]></add>
+        </operation>
+		
+		<operation>
+            <search position="before"><![CDATA[
+<?php echo $footer; ?>
+			]]></search>
+            <add><![CDATA[ 
+<script type="text/javascript"><!--				
+$('input[name=\'salesreps\']').catcomplete({
+	delay: 0,
+	source: function(request, response) {
+		$.ajax({
+			url: 'index.php?route=sale/salesrep/autocomplete&token=<?php echo $token; ?>&filter_name=' +  encodeURIComponent(request.term),
+			dataType: 'json',
+			success: function(json) {	
+				response($.map(json, function(item) {
+					return {
+						label: item.name,
+						value: item.salesrep_id
+					}
+				}));
+			}
+		});
+		
+	}, 
+	select: function(event, ui) {
+		$('#salesrep' + ui.item.value).remove();
+		
+		$('#salesrep').append('<div id="salesrep' + ui.item.value + '">' + ui.item.label + '<img src="view/image/delete.png" /><input type="hidden" name="salesrep[]" value="' + ui.item.value + '" /></div>');
+
+		$('#salesrep div:odd').attr('class', 'odd');
+		$('#salesrep div:even').attr('class', 'even');
+				
+		return false;
+	}
+});
+
+$('#salesrep div img').live('click', function() {
+	$(this).parent().remove();
+	
+	$('#salesrep div:odd').attr('class', 'odd');
+	$('#salesrep div:even').attr('class', 'even');	
+});
+//--></script>
+            ]]></add>
+        </operation>
+	</file>	
+</modification>

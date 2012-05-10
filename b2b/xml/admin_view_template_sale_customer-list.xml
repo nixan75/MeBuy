@@ -1,0 +1,126 @@
+<modification>
+	<id>admin_view_template_sale_customer-list.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="admin/view/template/sale/customer_list.tpl">
+		<operation>
+			<search position="replace" offset="8">
+			<![CDATA[
+			<td class="left"><?php echo $customer['ip']; ?></td>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="replace" offset="2">
+			<![CDATA[
+			<td><input type="text" name="filter_ip" value="<?php echo $filter_ip; ?>" /></td>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="replace" offset="10">
+			<![CDATA[
+			<td class="left"><?php if ($sort == 'c.ip') { ?>
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			]]>
+			</add>
+		</operation>
+		
+<!-- SALES REP -->
+		<operation>
+            <search position="before" >
+			<![CDATA[
+            <td class="left"><?php if ($sort == 'c.status') { ?>
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+            <td class="left"><?php if ($sort == 'salesrep') { ?>
+              <a href="<?php echo $sort_salesrep; ?>" class="<?php echo strtolower($order); ?>"><?php echo $column_salesrep; ?></a>
+              <?php } else { ?>
+              <a href="<?php echo $sort_salesrep; ?>"><?php echo $column_salesrep; ?></a>
+              <?php } ?></td>
+            ]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="before" >
+			<![CDATA[
+            <td><select name="filter_status">
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+            <td><select name="filter_salesrep_id">
+                <option value="*"></option>
+                <?php foreach ($salesreps as $salesrep) { ?>
+                <?php if ($salesrep['salesrep_id'] == $filter_salesrep_id) { ?>
+                <option value="<?php echo $salesrep['salesrep_id']; ?>" selected="selected"><?php echo $salesrep['name']; ?></option>
+                <?php } else { ?>
+                <option value="<?php echo $salesrep['salesrep_id']; ?>"><?php echo $salesrep['name']; ?></option>
+                <?php } ?>
+                <?php } ?>
+              </select></td>
+            ]]>
+			</add>
+        </operation>			
+		
+		<operation>
+            <search position="after" >
+			<![CDATA[
+            <td class="left"><?php echo $customer['customer_group']; ?></td>
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+            <td class="left"><?php echo $customer['salesrep']; ?></td>
+            ]]>
+			</add>
+        </operation>		
+
+		<operation>
+            <search position="before" >
+			<![CDATA[
+			var filter_status = $('select[name=\'filter_status\']').attr('value');
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			var filter_salesrep_id = $('select[name=\'filter_salesrep_id\']').attr('value');
+			if (filter_salesrep_id != '*') {
+			url += '&filter_salesrep_id=' + encodeURIComponent(filter_salesrep_id);
+			}	
+            ]]>
+			</add>
+        </operation>		
+
+		<operation>
+            <search position="replace" >
+			<![CDATA[
+            <td class="center" colspan="9"><?php echo $text_no_results; ?></td>	
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+              <td class="center" colspan="10"><?php echo $text_no_results; ?></td>	
+            ]]>
+			</add>
+        </operation>
+	</file>
+</modification>

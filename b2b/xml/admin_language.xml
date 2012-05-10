@@ -1,0 +1,24 @@
+<modification>
+	<id>admin_language</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="admin/language/italian/sale/customer.php">
+        <operation>
+            <search position="after">
+			<![CDATA[
+            $_['entry_description']
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+            $_['entry_cf']  = 'Codice Fiscale:';
+			$_['entry_vat']  = 'Partita IVA:';
+			$_['purchasing_manager']  = 'Responsabile Acquisti';
+			$_['company_information']  = 'Dati Societari';
+            ]]>
+			</add>
+        </operation>
+    </file>
+</modification>

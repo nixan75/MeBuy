@@ -1,0 +1,32 @@
+<modification>
+	<id>catalog_controller_checkout_confirm.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+
+	<file name="catalog/controller/checkout/confirm.php">
+
+		<operation>
+            <search position="after"><![CDATA[
+		$data['fax'] = $this->customer->getFax();	
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+		$data['salesrep_id'] = $this->customer->getSalesRepId();	
+// madimar mod end
+            ]]></add>
+        </operation>
+
+		<operation>
+            <search position="after"><![CDATA[
+				$data['fax'] = $this->session->data['guest']['fax'];
+            ]]></search>
+            <add><![CDATA[
+// madimar mod
+				$data['salesrep_id'] = $this->session->data['guest']['salesrep_id'];
+// madimar mod end
+            ]]></add>
+        </operation>
+		
+	</file>
+</modification>

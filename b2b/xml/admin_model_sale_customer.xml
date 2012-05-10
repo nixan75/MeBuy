@@ -1,0 +1,153 @@
+<modification>
+	<id>admin model sale customer.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+<!-- Mostra la ragione sociale nella lista clienti lato admin -->
+	<file name="admin/model/sale/customer.php">
+		<operation>
+			<search position="replace">
+			<![CDATA[
+			$sql = "SELECT *, CONCAT(c.firstname, ' ', c.lastname) AS name, cg.name AS customer_group FROM " . DB_PREFIX . "customer c LEFT JOIN " . DB_PREFIX . "customer_group cg ON (c.customer_group_id = cg.customer_group_id)";
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$sql = "SELECT *, CONCAT(ad.company, ' ') AS name, cg.name AS customer_group FROM " . DB_PREFIX . "customer c LEFT JOIN " . DB_PREFIX . "customer_group cg ON (c.customer_group_id = cg.customer_group_id) LEFT JOIN " . DB_PREFIX . "address ad ON (c.address_id = ad.address_id)";
+			
+			$sql = str_replace ('*, ', '', $sql);		
+			$sql = str_replace (' FROM', ', c.customer_id AS customer_id, c.firstname AS firstname, c.lastname AS lastname, c.ip AS ip, c.email AS email, c.status AS status, c.telephone AS telephone, c.fax AS fax, c.approved AS approved, c.date_added AS date_added, cg.name AS customer_group, sr.name AS salesrep FROM', $sql);
+			$sql .= " LEFT JOIN " . DB_PREFIX . "salesrep sr ON (c.salesrep_id = sr.salesrep_id) ";
+			]]>
+			</add>
+		</operation>
+		
+		<operation>
+			<search position="replace">
+			<![CDATA[
+			$implode[] = "LCASE(CONCAT(c.firstname, ' ', c.lastname)) LIKE '" . $this->db->escape(utf8_strtolower($data['filter_name'])) . "%'";
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			$implode[] = "LCASE(CONCAT(ad.company, ' ')) LIKE '" . $this->db->escape(utf8_strtolower($data['filter_name'])) . "%'";
+			]]>
+			</add>
+		</operation>
+		
+<!-- Codice Fiscale e Partita IVA -->
+		<operation>
+            <search position="replace">
+			<![CDATA[
+            $this->db->query("INSERT INTO " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', newsletter = '" . (int)$data['newsletter'] . "', customer_group_id = '" . (int)$data['customer_group_id'] . "', password = '" . $this->db->escape(md5($data['password'])) . "', status = '" . (int)$data['status'] . "', date_added = NOW()");
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+            $this->db->query("INSERT INTO " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', cf = '" . $this->db->escape($data['cf']) . "', vat = '" . $this->db->escape($data['vat']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', newsletter = '" . (int)$data['newsletter'] . "', customer_group_id = '" . (int)$data['customer_group_id'] . "', password = '" . $this->db->escape(md5($data['password'])) . "', status = '" . (int)$data['status'] . "', date_added = NOW()");
+            ]]>
+			</add>
+        </operation>
+        <operation>
+            <search position="replace">
+			<![CDATA[
+            $this->db->query("UPDATE " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', newsletter = '" . (int)$data['newsletter'] . "', customer_group_id = '" . (int)$data['customer_group_id'] . "', status = '" . (int)$data['status'] . "' WHERE customer_id = '" . (int)$customer_id . "'");
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+            $this->db->query("UPDATE " . DB_PREFIX . "customer SET firstname = '" . $this->db->escape($data['firstname']) . "', lastname = '" . $this->db->escape($data['lastname']) . "', cf = '" . $this->db->escape($data['cf']) . "', vat = '" . $this->db->escape($data['vat']) . "', email = '" . $this->db->escape($data['email']) . "', telephone = '" . $this->db->escape($data['telephone']) . "', fax = '" . $this->db->escape($data['fax']) . "', newsletter = '" . (int)$data['newsletter'] . "', customer_group_id = '" . (int)$data['customer_group_id'] . "', status = '" . (int)$data['status'] . "' WHERE customer_id = '" . (int)$customer_id . "'");
+            
+            $this->db->query("UPDATE " . DB_PREFIX . "customer SET salesrep_id = '" . (int)$data['salesrep_id'] . "' WHERE customer_id = '" . (int)$customer_id . "'");
+            ]]>
+			</add>
+        </operation>
+
+<!-- SALES REP -->
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$customer_id = $this->db->getLastId();
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->db->query("UPDATE " . DB_PREFIX . "customer SET salesrep_id = '" . (int)$data['salesrep_id'] . "' WHERE customer_id = '" . (int)$customer_id . "'");		
+			]]>
+			</add>
+        </operation>	
+
+		<operation>
+            <search position="before" index="1">
+			<![CDATA[
+			if (isset($data['filter_status']) && !is_null($data['filter_status'])) {
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if (isset($data['filter_salesrep_id']) && !is_null($data['filter_salesrep_id'])) {
+				$implode[] = "sr.salesrep_id = '" . $this->db->escape($data['filter_salesrep_id']) . "'";
+			}		
+			]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			'customer_group',
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			'salesrep',
+			]]>
+			</add>
+        </operation>				
+		
+		<operation>
+            <search position="before" index="2">
+			<![CDATA[
+			if (isset($data['filter_status']) && !is_null($data['filter_status'])) {
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if (isset($data['filter_salesrep_id']) && !is_null($data['filter_salesrep_id'])) {
+			$implode[] = "salesrep_id = '" . (int)$data['filter_salesrep_id'] . "'";
+			}
+			]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="before" index="1">
+			<![CDATA[
+			if ($implode) {
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+				$implode[] = "c.salesrep_id = '" . $this->user->getUserSalesRepId() . "'";
+			}
+			]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="before" index="2">
+			<![CDATA[
+			if ($implode) {
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$implode[] = "salesrep_id = '" . $this->user->getUserSalesRepId() . "'";
+			}
+			]]>
+			</add>
+        </operation>
+	</file>
+</modification>

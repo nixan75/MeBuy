@@ -1,0 +1,37 @@
+<modification>
+	<id>catalog_view_theme_shoppica_template_account_edit.tpl</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+
+<!-- Campi Codice Fiscale e Partita IVA form modifica cliente -->	
+	<file name="catalog/view/theme/shoppica/template/account/edit.tpl">
+		<operation>
+			<search position="before">
+			<![CDATA[
+			<div class="s_row_2<?php if ($error_email): ?> s_error_row<?php endif; ?> clearfix">
+			]]>
+			</search>
+			<add>
+			<![CDATA[
+			<h2 class="s_title_1"><?php echo $company_information; ?></h2>
+			<div class="clear"></div>
+			<div class="s_row_2 clearfix">
+			<label><?php echo $entry_cf; ?> *</label>
+			<input type="text" name="cf" value="<?php echo $cf; ?>" size="30" class="required" title="<?php echo $this->language->get('error_email'); ?>" />
+			<?php if ($error_email): ?>
+			<p class="s_error_msg"><?php echo $error_email; ?></p>
+			<?php endif; ?>
+			</div>
+			<div class="s_row_2 clearfix">
+			<label><?php echo $entry_vat; ?> *</label>
+			<input type="text" name="vat" value="<?php echo $vat; ?>" size="30" class="required" title="<?php echo $this->language->get('error_email'); ?>" />
+			<?php if ($error_email): ?>
+			<p class="s_error_msg"><?php echo $error_email; ?></p>
+			<?php endif; ?>
+			</div>
+			]]>
+			</add>
+		</operation>
+	</file>
+</modification>

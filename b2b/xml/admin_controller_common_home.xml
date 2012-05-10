@@ -1,0 +1,130 @@
+<modification>
+	<id>admin_controller_common_home.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+
+	<file name="admin/controller/common/home.php">
+<!-- SALES REP -->
+<!-- dashboard -->
+		<operation>
+            <search position="after">
+			<![CDATA[
+					$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order` WHERE order_status_id > '0' AND (DATE(date_added) = DATE(NOW()) AND HOUR(date_added) = '" . (int)$i . "') GROUP BY HOUR(date_added) ORDER BY date_added ASC");
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order` WHERE salesrep_id = '" . $this->user->getUserSalesRepId() . "' AND order_status_id > '0' AND (DATE(date_added) = DATE(NOW()) AND HOUR(date_added) = '" . (int)$i . "') GROUP BY HOUR(date_added) ORDER BY date_added ASC");		
+			}
+            ]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "customer WHERE DATE(date_added) = DATE(NOW()) AND HOUR(date_added) = '" . (int)$i . "' GROUP BY HOUR(date_added) ORDER BY date_added ASC");
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "customer WHERE salesrep_id = '" . $this->user->getUserSalesRepId() . "' AND DATE(date_added) = DATE(NOW()) AND HOUR(date_added) = '" . (int)$i . "' GROUP BY HOUR(date_added) ORDER BY date_added ASC");	
+			}
+            ]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order` WHERE order_status_id > '0' AND DATE(date_added) = '" . $this->db->escape($date) . "' GROUP BY DATE(date_added)");
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order` WHERE order_status_id > '0' AND DATE(date_added) = '" . $this->db->escape($date) . " AND salesrep_id = '" . $this->user->getUserSalesRepId() . "'" . " GROUP BY DATE(date_added)");		
+			}
+            ]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "customer` WHERE DATE(date_added) = '" . $this->db->escape($date) . "' GROUP BY DATE(date_added)");
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "customer` WHERE DATE(date_added) = '" . $this->db->escape($date) . " AND salesrep_id = '" . $this->user->getUserSalesRepId() . "'" . " GROUP BY DATE(date_added)");		
+			}
+            ]]>
+			</add>
+        </operation>		
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order` WHERE order_status_id > '0' AND (DATE(date_added) = '" . $this->db->escape($date) . "') GROUP BY DAY(date_added)");
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order` WHERE order_status_id > '0' AND (DATE(date_added) = '" . $this->db->escape($date) . "') AND salesrep_id = '" . $this->user->getUserSalesRepId() . "' GROUP BY DAY(date_added)");		
+			}
+            ]]>
+			</add>
+        </operation>	
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "customer WHERE DATE(date_added) = '" . $this->db->escape($date) . "' GROUP BY DAY(date_added)");
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "customer WHERE DATE(date_added) = '" . $this->db->escape($date) . "'" . "AND salesrep_id = '" . $this->user->getUserSalesRepId() . "'" . " GROUP BY DAY(date_added)");	
+			}
+            ]]>
+			</add>
+        </operation>		
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order` WHERE order_status_id > '0' AND YEAR(date_added) = '" . date('Y') . "' AND MONTH(date_added) = '" . $i . "' GROUP BY MONTH(date_added)");
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "order` WHERE salesrep_id = '" . $this->user->getUserSalesRepId() . "' AND order_status_id > '0' AND YEAR(date_added) = '" . date('Y') . "' AND MONTH(date_added) = '" . $i . "' GROUP BY MONTH(date_added)");
+			}
+            ]]>
+			</add>
+        </operation>	
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "customer WHERE YEAR(date_added) = '" . date('Y') . "' AND MONTH(date_added) = '" . $i . "' GROUP BY MONTH(date_added)");
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			if ($this->user->getUserSalesRepId() != 0) {
+			$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "customer WHERE  salesrep_id = '" . $this->user->getUserSalesRepId() . "' AND YEAR(date_added) = '" . date('Y') . "' AND MONTH(date_added) = '" . $i . "' GROUP BY MONTH(date_added)");
+			}
+            ]]>
+			</add>
+        </operation>		
+	</file>
+</modification>

@@ -1,0 +1,77 @@
+<modification>
+	<id>admin_model_report_sale.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="admin/model/report/sale.php">
+<!-- SALES REP -->
+		<operation>
+            <search position="before" offset="1">
+			<![CDATA[
+			?>
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			public function getOrdersSR($data = array()) { 
+			$sql = "SELECT * FROM (SELECT sr.salesrep_id, sr.name AS salesrep, sr.area, sr.email, sr.status FROM `" . DB_PREFIX . "salesrep` sr) sr0 LEFT JOIN (SELECT sr.salesrep_id AS salesrep_id1, COUNT(customer_id) AS customers FROM `" . DB_PREFIX . "customer` c LEFT JOIN `" . DB_PREFIX . "salesrep` sr ON c.salesrep_id = sr.salesrep_id GROUP BY salesrep_id1) sr1 ON sr0.salesrep_id = sr1.salesrep_id1 LEFT JOIN (SELECT tmp.salesrep_id AS salesrep_id2, COUNT(tmp.order_id) AS orders, SUM(tmp.products) AS products, SUM(tmp.total) AS total FROM (SELECT sr.salesrep_id, o.order_id, sr.email, (SELECT SUM(op.quantity) FROM `" . DB_PREFIX . "order_product` op WHERE op.order_id = o.order_id GROUP BY op.order_id) AS products, o.total FROM `" . DB_PREFIX . "order` o LEFT JOIN `" . DB_PREFIX . "salesrep` sr ON (o.salesrep_id = sr.salesrep_id)";			
+		
+			if (isset($data['filter_order_status_id']) && $data['filter_order_status_id']) {
+			$sql .= " WHERE o.order_status_id = '" . (int)$data['filter_order_status_id'] . "'";
+			} else {
+			$sql .= " WHERE o.order_status_id > '0'";
+			}
+				
+			if (isset($data['filter_date_start']) && $data['filter_date_start']) {
+			$sql .= " AND DATE(o.date_added) >= '" . $this->db->escape($data['filter_date_start']) . "'";
+			}
+
+			if (isset($data['filter_date_end']) && $data['filter_date_end']) {
+			$sql .= " AND DATE(o.date_added) <= '" . $this->db->escape($data['filter_date_end']) . "'";
+			}
+		
+			$sql .= ") tmp GROUP BY tmp.salesrep_id) sr2 ON (sr1.salesrep_id1 = sr2.salesrep_id2) ORDER BY total DESC";
+			
+			if (isset($data['start']) || isset($data['limit'])) {
+			if ($data['start'] < 0) {
+			$data['start'] = 0;
+			}			
+
+			if ($data['limit'] < 1) {
+			$data['limit'] = 20;
+			}	
+			
+			$sql .= " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+			}
+			
+			$query = $this->db->query($sql);
+			return $query->rows;
+			}
+
+			public function getTotalOrdersSR($data = array()) {
+			$sql = "SELECT COUNT(DISTINCT o.salesrep_id) AS total FROM `" . DB_PREFIX . "order` o WHERE o.salesrep_id >= '0'";
+		
+			if (isset($data['filter_order_status_id']) && $data['filter_order_status_id']) {
+			$sql .= " AND o.order_status_id = '" . (int)$data['filter_order_status_id'] . "'";
+			} else {
+			$sql .= " AND o.order_status_id > '0'";
+			}
+						
+			if (isset($data['filter_date_start']) && $data['filter_date_start']) {
+			$sql .= " AND DATE(o.date_added) >= '" . $this->db->escape($data['filter_date_start']) . "'";
+			}
+
+			if (isset($data['filter_date_end']) && $data['filter_date_end']) {
+			$sql .= " AND DATE(o.date_added) <= '" . $this->db->escape($data['filter_date_end']) . "'";
+			}
+						
+			$query = $this->db->query($sql);
+
+			return $query->row['total'];
+			}
+            ]]>
+			</add>
+        </operation>
+	</file>
+</modification>

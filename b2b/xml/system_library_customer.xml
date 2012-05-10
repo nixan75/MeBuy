@@ -1,0 +1,63 @@
+<modification>
+	<id>system_library_customer.php</id>
+	<version>1.5.3</version>
+	<vqmver>2.1.5</vqmver>
+	<author>ANNARTE DESIGN</author>
+	
+	<file name="system/library/customer.php">
+<!-- SALES REP -->
+		<operation>
+            <search position="after">
+			<![CDATA[
+			private $customer_group_id;
+			]]>
+			</search>
+            <add>
+			<![CDATA[
+			private $salesrep_id;
+            ]]>
+			</add>
+        </operation>
+
+		<operation>
+            <search position="after">
+			<![CDATA[
+				$this->customer_group_id = $customer_query->row['customer_group_id'];
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+				$this->salesrep_id = $customer_query->row['salesrep_id'];
+            ]]>
+			</add>
+        </operation>		
+		
+		<operation>
+            <search position="after">
+			<![CDATA[
+			$this->customer_group_id = '';	
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			$this->salesrep_id = '';
+            ]]>
+			</add>
+        </operation>
+		
+		<operation>
+            <search position="before">
+			<![CDATA[
+			public function getCustomerGroupId() {
+            ]]>
+			</search>
+            <add>
+			<![CDATA[
+			public function getSalesRepId() {
+			return $this->salesrep_id;	
+			}
+            ]]>
+			</add>
+        </operation>
+	</file>	
+</modification>
